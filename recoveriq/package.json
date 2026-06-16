@@ -15,7 +15,7 @@
     "db:studio": "prisma studio"
   },
   "prisma": {
-    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+    "seed": "node --require ts-node/register --require tsconfig-paths/register prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.8.0",
@@ -31,6 +31,7 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "recharts": "^3.8.1",
+    "tsconfig-paths": "^4.2.0",
     "xlsx": "^0.18.5",
     "zod": "^4.4.3"
   },

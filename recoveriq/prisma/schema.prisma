@@ -1,0 +1,181 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  password    String
+  role        String   @default("Officer") // Admin | Manager | Officer | Viewer
+  region      String?
+  countyScope String?  // comma-separated county codes
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cases     RecoveryCase[]
+  actions   RecoveryAction[]
+  auditLogs AuditLog[]
+  sessions  Session[]
+  accounts  Account[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model ImportBatch {
+  id                   String   @id @default(cuid())
+  filename             String
+  uploadedAt           DateTime @default(now())
+  rowCount             Int
+  droppedRowCount      Int      @default(0)
+  reconciliationStatus String   @default("Pending") // Pending | Reconciled | Overridden | Failed
+  overrideReason       String?
+  overriddenById       String?
+  notes                String?
+
+  loans                   Loan[]
+  financialIntermediaries FinancialIntermediary[]
+}
+
+model Loan {
+  id                     String    @id @default(cuid())
+  importBatchId          String
+  loanNo                 String    @unique
+  memberNo               String?
+  borrowerName           String
+  // Agribizz | Asset Finance | Vuka | Go Green | LPO/LSO | Migration | Talanta | VIBE | Group Loan
+  product                String
+  disbursementDate       DateTime?
+  repaymentStartDate     DateTime?
+  expectedCompletionDate DateTime?
+  lastPayDate            DateTime?
+  loanTenor              Int?
+  // All monetary values stored as strings to preserve decimal precision — never floats
+  approvedAmount         String
+  disbursedAmount        String
+  totalPaid              String
+  outstandingBalance     String
+  daysInArrears          Int       @default(0)
+  // Normal | Watch | Substandard | Doubtful | Loss
+  classification         String
+  countyCode             Int?      // 1–47; Group Loan only
+
+  // Derived / cached fields (computed on import, stored for query performance)
+  arrearsBucket     String?  // Current | 1-30 | 31-90 | 91-180 | 181-360 | 360+
+  recoveryTier      String?  // Curable | At-risk | Doubtful | Impaired
+  dormancyDays      Int?
+  isMatured         Boolean  @default(false)
+  isCreditBalance   Boolean  @default(false)
+  creditBalanceType String?  // True overpayment | Likely misposting
+
+  importBatch  ImportBatch   @relation(fields: [importBatchId], references: [id])
+  recoveryCase RecoveryCase?
+
+  @@index([product])
+  @@index([classification])
+  @@index([recoveryTier])
+  @@index([countyCode])
+  @@index([arrearsBucket])
+  @@index([isMatured])
+  @@index([isCreditBalance])
+}
+
+model FinancialIntermediary {
+  id                   String  @id @default(cuid())
+  importBatchId        String
+  name                 String
+  county               String?
+  disbursed            String
+  principalRecovered   String
+  interestRecovered    String
+  principalOutstanding String
+  interestOutstanding  String
+  defaultPenalty       String
+  totalOutstanding     String
+
+  importBatch ImportBatch @relation(fields: [importBatchId], references: [id])
+}
+
+model RecoveryCase {
+  id                String    @id @default(cuid())
+  loanNo            String    @unique
+  assignedOfficerId String?
+  // New | In progress | Promised to pay | Restructured | Legal | CRB-listed | Written-off | Recovered | Closed
+  status            String    @default("New")
+  priorityTier      String?
+  nextActionDate    DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  loan    Loan             @relation(fields: [loanNo], references: [loanNo])
+  officer User?            @relation(fields: [assignedOfficerId], references: [id])
+  actions RecoveryAction[]
+}
+
+model RecoveryAction {
+  id        String   @id @default(cuid())
+  caseId    String
+  officerId String
+  // Call | SMS | Demand letter | Field visit | Restructure offer | Guarantor contact | CRB listing | Legal | Payment received | Note
+  type           String
+  outcome        String?
+  amountPromised String?
+  amountReceived String?
+  notes          String?
+  timestamp      DateTime @default(now())
+
+  case    RecoveryCase @relation(fields: [caseId], references: [id])
+  officer User         @relation(fields: [officerId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String
+  action    String
+  entity    String
+  entityId  String?
+  before    String?  // JSON-serialised snapshot
+  after     String?  // JSON-serialised snapshot
+  timestamp DateTime @default(now())
+
+  actor User @relation(fields: [actorId], references: [id])
+}

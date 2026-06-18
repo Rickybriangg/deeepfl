@@ -1,0 +1,36 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+
+export async function GET(req: NextRequest) {
+  const session = await getServerSession(authOptions)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { searchParams } = new URL(req.url)
+  const view = searchParams.get('view') // 'mine' | 'dueToday'
+  const userId = (session.user as { id: string }).id
+
+  const where: Record<string, unknown> = {}
+  if (view === 'mine') where.assignedOfficerId = userId
+  if (view === 'dueToday') {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    where.nextActionDate = { gte: today, lt: tomorrow }
+  }
+
+  const cases = await prisma.recoveryCase.findMany({
+    where,
+    include: {
+      loan: true,
+      officer: true,
+      actions: { orderBy: { timestamp: 'desc' }, take: 5 },
+    },
+    orderBy: { updatedAt: 'desc' },
+    take: 100,
+  })
+
+  return NextResponse.json({ cases })
+}

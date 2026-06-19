@@ -65,6 +65,16 @@ const navItems: NavItem[] = [
     ),
   },
   {
+    href: '/targets',
+    label: 'Targets',
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+          d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 4a6 6 0 100 12 6 6 0 000-12zm0 4a2 2 0 100 4 2 2 0 000-4z" />
+      </svg>
+    ),
+  },
+  {
     href: '/legal',
     label: 'Legal',
     icon: (

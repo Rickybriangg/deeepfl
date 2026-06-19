@@ -18,11 +18,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cases     RecoveryCase[]
-  actions   RecoveryAction[]
-  auditLogs AuditLog[]
-  sessions  Session[]
-  accounts  Account[]
+  cases           RecoveryCase[]
+  actions         RecoveryAction[]
+  auditLogs       AuditLog[]
+  sessions        Session[]
+  accounts        Account[]
+  recoveryTargets RecoveryTarget[]
 }
 
 model Account {
@@ -200,6 +201,22 @@ model AutomationRule {
   action           String
   enabled          Boolean  @default(true)
   updatedAt        DateTime @updatedAt
+}
+
+// Per-officer monthly collection targets (roadmap 1.5 "Recovery Targets").
+// `periodMonth` is "YYYY-MM"; actual collections for the period are derived
+// at read time from RecoveryAction.amountReceived, not stored here.
+model RecoveryTarget {
+  id           String   @id @default(cuid())
+  officerId    String
+  periodMonth  String
+  targetAmount String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  officer User @relation(fields: [officerId], references: [id])
+
+  @@unique([officerId, periodMonth])
 }
 
 // Legal Recovery Management (roadmap 1.10): demand letters, legal notices,

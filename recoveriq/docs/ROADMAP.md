@@ -86,7 +86,7 @@ days-in-arrears threshold; every transition logs a `RecoveryAction` and an
 - [x] Promise-to-Pay Tracking *(see 1.6)*
 - [x] Collector Performance Metrics *(Portfolio page ranking table)*
 - [x] Visit Scheduling *(logging a "Field visit" action lets the officer set a scheduled date, stored on `RecoveryCase.nextActionDate` and shown in the "Next Action" column — reuses the same commitment-date field as PTP)*
-- [ ] Recovery Targets
+- [x] Recovery Targets *(`RecoveryTarget` model: per-officer monthly target, set by Admin/Manager/Superadmin on the new `/targets` page; actual collections derived live from `RecoveryAction.amountReceived`, with % achieved)*
 
 ### 1.6 Promise-to-Pay (PTP) Management
 Allow collectors to:

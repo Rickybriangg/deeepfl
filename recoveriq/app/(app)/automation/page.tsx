@@ -8,8 +8,11 @@ interface Rule {
   minDaysInArrears: number
   maxDaysInArrears: number | null
   action: string
+  assignmentStrategy: string
   enabled: boolean
 }
+
+const ASSIGNMENT_STRATEGIES = ['least_open_cases', 'branch_match']
 
 interface RiskSettings {
   mediumMin: number
@@ -102,6 +105,7 @@ export default function AutomationPage() {
                 <th className="py-2 px-3">Min Days</th>
                 <th className="py-2 px-3">Max Days</th>
                 <th className="py-2 px-3">Action</th>
+                <th className="py-2 px-3">Assignment strategy</th>
                 <th className="py-2 px-3">Enabled</th>
                 <th className="py-2 px-3"></th>
               </tr>
@@ -148,6 +152,23 @@ export default function AutomationPage() {
                         </option>
                       ))}
                     </select>
+                  </td>
+                  <td className="py-2 px-3">
+                    {r.action === 'assign_officer' ? (
+                      <select
+                        value={r.assignmentStrategy}
+                        onChange={(e) => updateField(r.level, 'assignmentStrategy', e.target.value)}
+                        className="border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1"
+                      >
+                        {ASSIGNMENT_STRATEGIES.map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
                   </td>
                   <td className="py-2 px-3">
                     <input

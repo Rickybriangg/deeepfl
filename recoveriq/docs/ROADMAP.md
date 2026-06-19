@@ -194,7 +194,7 @@ Export formats:
 Administrators configure (without modifying code):
 - [x] Escalation timelines *(`AutomationRule.minDaysInArrears`/`maxDaysInArrears` per level, editable on the new Admin-only **Automation** page)*
 - [x] Legal trigger points *(Level 5 `escalate_legal` threshold, editable)*
-- [~] Collector assignment logic *(assignment trigger threshold is configurable; the round-robin strategy itself is fixed, not yet pluggable)*
+- [x] Collector assignment logic *(`AutomationRule.assignmentStrategy` — pluggable `least_open_cases` (default round-robin) or `branch_match` (prefer an officer whose region matches the loan's branch, falling back to least-open-cases), editable on the Automation page)*
 - [ ] Reminder frequencies *(blocked on 1.3 Reminder Engine — no channels exist to send through yet)*
 - [x] Risk thresholds *(`RiskSettings` model — Medium/High/Critical score cutoffs, editable on the Automation page, read by `/api/risk`)*
 - [x] Recovery strategies *(`RiskSettings` also stores the recommended-strategy text per band, editable on the same page)*

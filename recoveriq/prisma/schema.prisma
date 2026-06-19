@@ -205,6 +205,8 @@ model AutomationRule {
   maxDaysInArrears Int? // null = no upper bound (open-ended, e.g. Legal)
   // notify | assign_officer | escalate_supervisor | escalate_legal
   action           String
+  // Only meaningful when action = assign_officer: least_open_cases | branch_match
+  assignmentStrategy String  @default("least_open_cases")
   enabled          Boolean  @default(true)
   updatedAt        DateTime @updatedAt
 }

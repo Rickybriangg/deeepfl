@@ -34,12 +34,12 @@ export async function PUT(req: NextRequest) {
   }
 
   const body = await req.json()
-  const { level, label, minDaysInArrears, maxDaysInArrears, action, enabled } = body
+  const { level, label, minDaysInArrears, maxDaysInArrears, action, assignmentStrategy, enabled } = body
 
   const before = await prisma.automationRule.findUnique({ where: { level } })
   const updated = await prisma.automationRule.update({
     where: { level },
-    data: { label, minDaysInArrears, maxDaysInArrears, action, enabled },
+    data: { label, minDaysInArrears, maxDaysInArrears, action, assignmentStrategy, enabled },
   })
 
   await prisma.auditLog.create({

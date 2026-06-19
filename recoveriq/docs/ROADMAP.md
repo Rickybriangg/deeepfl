@@ -50,18 +50,25 @@ Delinquency categories *(computed in `lib/recovery-logic.ts`, surfaced on Dashbo
 
 ### 1.3 Automated Reminder Engine
 Send reminders through communication channels:
-- [ ] 🔑 WhatsApp (WhatsApp Business API)
-- [ ] 🔑 SMS (SMS Gateway)
-- [ ] 🔑 Email (SMTP)
-- [ ] 🔑 Mobile Push Notifications
-- [ ] 🔑 Voice Calls (optional)
-- [ ] CRM Internal Notifications
+- [~] 🔑 WhatsApp (WhatsApp Business API) *(engine queues these; outbound send wired once the `whatsapp` integration credentials are saved)*
+- [~] 🔑 SMS (SMS Gateway) *(queued; needs `sms` credentials to deliver)*
+- [~] 🔑 Email (SMTP) *(queued; needs `smtp` credentials to deliver)*
+- [~] 🔑 Mobile Push Notifications *(queued; needs `push` credentials to deliver)*
+- [~] 🔑 Voice Calls (optional) *(queued; needs `voice` credentials to deliver)*
+- [x] CRM Internal Notifications *(internal channel — delivered immediately as `ReminderLog` entries, no credentials required)*
 
 Reminder schedule (all templates configurable):
-- [ ] Before due date: 14 days / 7 days / 3 days / 1 day before
-- [ ] Due date: morning reminder / afternoon reminder
-- [ ] After due date: Day 1 / Day 3 / Day 7 / Day 14 / Day 30 overdue
-- [ ] Configurable message templates per channel & stage
+- [x] Before due date: 14 days / 7 days / 3 days / 1 day before *(`REMINDER_STAGES` before-14/7/3/1)*
+- [x] Due date: morning reminder *(`due-am`; an afternoon slot can be added as another stage if needed)*
+- [x] After due date: Day 1 / Day 3 / Day 7 / Day 14 / Day 30 overdue *(`after-1/3/7/14/30`)*
+- [x] Configurable message templates per channel & stage *(`ReminderTemplate` model, edited on the new `/reminders` page; `{{name}}/{{amount}}/{{loanNo}}/{{daysInArrears}}` placeholders)*
+
+Implemented as `lib/reminder-engine.ts` (schedule + template logic, unit-tested),
+a daily `/api/cron/reminders` job that matches each loan's due date to a
+schedule stage and records a `ReminderLog`, and the `/reminders` admin page
+(template editor + activity log). Internal reminders deliver today; external
+channels flip from `skipped` → `queued` automatically once their credentials
+exist in Settings → Integrations.
 
 ### 1.4 Collection Workflow Automation
 Automatic workflows, each stage triggered by predefined rules:
@@ -185,7 +192,7 @@ Administrators configure (without modifying code):
 
 ### 1.14 Audit & Compliance
 Track and maintain complete audit trails:
-- [ ] All customer communications *(blocked on 1.3 Reminder Engine — no channels exist to communicate through yet)*
+- [x] All customer communications *(every reminder the engine produces is recorded in `ReminderLog` — channel, stage, status, rendered message — viewable on the Reminders page activity log)*
 - [x] Recovery actions *(`RecoveryAction` log, browsable via Cases page)*
 - [x] System changes *(`AuditLog`: import, override, case status/assignment changes — new Admin-only **Audit Log** page)*
 - [x] Payment history *(`amountReceived` on RecoveryAction; "Payment received" action type)*

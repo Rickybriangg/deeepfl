@@ -253,6 +253,39 @@ model LegalCase {
   @@index([status])
 }
 
+// Automated Reminder Engine (roadmap 1.3). Admin-authored message templates,
+// one per channel + schedule stage. `channel` = internal | sms | whatsapp |
+// email | push | voice. `stage` is a schedule key like "before-7" / "due-am"
+// / "after-30". `{{name}}`, `{{amount}}`, `{{loanNo}}`, `{{daysInArrears}}`
+// placeholders are substituted at send time.
+model ReminderTemplate {
+  id        String   @id @default(cuid())
+  channel   String
+  stage     String
+  subject   String?
+  body      String
+  enabled   Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  @@unique([channel, stage])
+}
+
+// Append-only log of reminders the engine produced. `status` =
+// sent (internal) | queued (external channel configured, awaiting provider
+// send) | skipped (channel not configured) | failed.
+model ReminderLog {
+  id        String   @id @default(cuid())
+  loanNo    String
+  channel   String
+  stage     String
+  status    String
+  message   String
+  createdAt DateTime @default(now())
+
+  @@index([loanNo])
+  @@index([createdAt])
+}
+
 // Superadmin-only integration credentials (roadmap "Settings & Credentials").
 // `config` is an encrypted (AES-256-GCM) JSON blob of credential fields —
 // never stored or logged in plaintext. `lastVerifiedAt` is set by the

@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { searchParams } = new URL(req.url)
-  const view = searchParams.get('view') // 'mine' | 'dueToday'
+  const view = searchParams.get('view') // 'mine' | 'dueToday' | 'brokenPTP'
   const userId = (session.user as { id: string }).id
 
   const where: Record<string, unknown> = {}
@@ -23,6 +23,12 @@ export async function GET(req: NextRequest) {
     const tomorrow = new Date(today)
     tomorrow.setDate(tomorrow.getDate() + 1)
     where.nextActionDate = { gte: today, lt: tomorrow }
+  }
+  // A broken promise: case is "Promised to pay" and the commitment date has
+  // passed with no payment logged against it since.
+  if (view === 'brokenPTP') {
+    where.status = 'Promised to pay'
+    where.nextActionDate = { lt: new Date() }
   }
 
   const cases = await prisma.recoveryCase.findMany({
@@ -36,5 +42,15 @@ export async function GET(req: NextRequest) {
     take: 100,
   })
 
-  return NextResponse.json({ cases })
+  const now = new Date()
+  const casesWithFlags = cases.map((c) => {
+    const isBrokenPromise =
+      c.status === 'Promised to pay' &&
+      !!c.nextActionDate &&
+      c.nextActionDate < now &&
+      !c.actions.some((a) => a.type === 'Payment received')
+    return { ...c, isBrokenPromise }
+  })
+
+  return NextResponse.json({ cases: casesWithFlags })
 }

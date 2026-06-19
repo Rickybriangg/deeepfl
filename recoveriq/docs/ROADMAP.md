@@ -72,22 +72,22 @@ Automatic workflows, each stage triggered by predefined rules:
 - [ ] Level 5 — Legal recovery escalation
 
 ### 1.5 Recovery Officer Management
-- [ ] Recovery Officer Dashboard
-- [ ] Assigned Accounts List
+- [~] Recovery Officer Dashboard *(Cases page "My queue" view serves this; no dedicated officer-only dashboard yet)*
+- [x] Assigned Accounts List *(Cases page "My queue" view)*
 - [ ] Visit Scheduling
-- [ ] Call Logs
-- [ ] Follow-up Notes
-- [ ] Promise-to-Pay Tracking
-- [ ] Collector Performance Metrics
+- [x] Call Logs *("Call" action type in case action log)*
+- [x] Follow-up Notes *(`notes` field on RecoveryAction)*
+- [x] Promise-to-Pay Tracking *(see 1.6)*
+- [x] Collector Performance Metrics *(Portfolio page ranking table)*
 - [ ] Recovery Targets
 
 ### 1.6 Promise-to-Pay (PTP) Management
 Allow collectors to:
-- [ ] Record PTP commitments
-- [ ] Set commitment dates
-- [ ] Monitor compliance
-- [ ] Trigger alerts when broken
-- [ ] Escalate failed commitments automatically
+- [x] Record PTP commitments *(`amountPromised` on RecoveryAction, set when logging "Promised to pay")*
+- [x] Set commitment dates *(`nextActionDate` on RecoveryCase)*
+- [x] Monitor compliance *(`isBrokenPromise` flag: commitment date passed, no "Payment received" action since)*
+- [x] Trigger alerts when broken *(Cases page "Broken promises" view + red badge)*
+- [x] Escalate failed commitments automatically *(`/api/cron/escalate-ptp` daily Vercel cron sets `priorityTier = "PTP Broken"`, logs a Note action + AuditLog entry)*
 
 ### 1.7 Customer Risk Scoring
 AI-powered risk scoring using: repayment history, loan utilization, missed

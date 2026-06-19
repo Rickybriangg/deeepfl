@@ -18,6 +18,7 @@ interface Case {
   loan: { borrowerName: string; outstandingBalance: string; product: string }
   officer: { name: string } | null
   actions: Action[]
+  isBrokenPromise?: boolean
 }
 
 const STATUSES = [
@@ -30,11 +31,18 @@ const ACTION_TYPES = [
 ]
 
 export default function CasesPage() {
-  const [view, setView] = useState<'all' | 'mine' | 'dueToday'>('mine')
+  const [view, setView] = useState<'all' | 'mine' | 'dueToday' | 'brokenPTP'>('mine')
   const [cases, setCases] = useState<Case[]>([])
   const [loading, setLoading] = useState(true)
   const [active, setActive] = useState<Case | null>(null)
-  const [form, setForm] = useState({ type: 'Call', outcome: '', notes: '', newStatus: '' })
+  const [form, setForm] = useState({
+    type: 'Call',
+    outcome: '',
+    notes: '',
+    newStatus: '',
+    amountPromised: '',
+    nextActionDate: '',
+  })
 
   function load() {
     setLoading(true)
@@ -60,9 +68,11 @@ export default function CasesPage() {
         outcome: form.outcome || undefined,
         notes: form.notes || undefined,
         newStatus: form.newStatus || undefined,
+        amountPromised: form.amountPromised || undefined,
+        nextActionDate: form.nextActionDate || undefined,
       }),
     })
-    setForm({ type: 'Call', outcome: '', notes: '', newStatus: '' })
+    setForm({ type: 'Call', outcome: '', notes: '', newStatus: '', amountPromised: '', nextActionDate: '' })
     setActive(null)
     load()
   }
@@ -75,7 +85,7 @@ export default function CasesPage() {
       </div>
 
       <div className="flex gap-2 mb-4">
-        {(['mine', 'dueToday', 'all'] as const).map((v) => (
+        {(['mine', 'dueToday', 'brokenPTP', 'all'] as const).map((v) => (
           <button
             key={v}
             onClick={() => setView(v)}
@@ -83,7 +93,13 @@ export default function CasesPage() {
               view === v ? 'bg-blue-700 text-white' : 'bg-white border border-gray-300 text-gray-600'
             }`}
           >
-            {v === 'mine' ? 'My queue' : v === 'dueToday' ? 'Due today' : 'All cases'}
+            {v === 'mine'
+              ? 'My queue'
+              : v === 'dueToday'
+              ? 'Due today'
+              : v === 'brokenPTP'
+              ? 'Broken promises'
+              : 'All cases'}
           </button>
         ))}
       </div>
@@ -114,6 +130,11 @@ export default function CasesPage() {
                   <td className="py-2 px-3">{formatKES(c.loan.outstandingBalance)}</td>
                   <td className="py-2 px-3">
                     <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{c.status}</span>
+                    {c.isBrokenPromise && (
+                      <span className="ml-1 text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 text-red-700">
+                        Broken promise
+                      </span>
+                    )}
                   </td>
                   <td className="py-2 px-3">{c.officer?.name ?? '—'}</td>
                   <td className="py-2 px-3">{c.nextActionDate ? new Date(c.nextActionDate).toLocaleDateString() : '—'}</td>
@@ -155,6 +176,18 @@ export default function CasesPage() {
                   {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
+              {form.newStatus === 'Promised to pay' && (
+                <>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Amount promised (KES)</label>
+                    <input value={form.amountPromised} onChange={(e) => setForm((f) => ({ ...f, amountPromised: e.target.value }))} className="w-full text-sm border border-gray-300 rounded-lg px-2 py-1.5" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Commitment date</label>
+                    <input type="date" value={form.nextActionDate} onChange={(e) => setForm((f) => ({ ...f, nextActionDate: e.target.value }))} className="w-full text-sm border border-gray-300 rounded-lg px-2 py-1.5" />
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="flex gap-2 mt-5">

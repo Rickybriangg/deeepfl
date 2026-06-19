@@ -78,6 +78,26 @@ export async function POST(
               await prisma.recoveryCase.update({ where: { id }, data: { status: 'Recovered' } })
             }
 
+            // Close installments (roadmap 1.11): apply the payment against the
+            // manually-entered schedule, oldest-due-first, marking each fully
+            // covered installment Paid until the payment is exhausted.
+            let remaining = paid
+            const pendingInstallments = await prisma.installment.findMany({
+              where: { caseId: id, status: { not: 'Paid' } },
+              orderBy: { dueDate: 'asc' },
+            })
+            for (const inst of pendingInstallments) {
+              if (remaining.lte(0)) break
+              const due = new Decimal(inst.amount)
+              if (remaining.gte(due)) {
+                await prisma.installment.update({
+                  where: { id: inst.id },
+                  data: { status: 'Paid', paidDate: new Date(), paidAmount: due.toString() },
+                })
+                remaining = remaining.minus(due)
+              }
+            }
+
             await prisma.auditLog.create({
               data: {
                 actorId: officerId,

@@ -32,6 +32,21 @@ export async function GET(req: NextRequest) {
     where: { status: { notIn: ['Recovered', 'Closed', 'Written-off'] } },
   })
 
+  // Where a manual installment schedule exists (roadmap 1.2), its nearest
+  // pending due date takes precedence over the loan-level expectedCompletionDate
+  // for "due" KPIs / delinquency staging.
+  const pendingInstallments = await prisma.installment.findMany({
+    where: { status: { not: 'Paid' } },
+    include: { case: { select: { loanNo: true } } },
+  })
+  const nearestDueByLoan: Record<string, Date> = {}
+  for (const inst of pendingInstallments) {
+    const loanNo = inst.case.loanNo
+    if (!nearestDueByLoan[loanNo] || inst.dueDate < nearestDueByLoan[loanNo]) {
+      nearestDueByLoan[loanNo] = inst.dueDate
+    }
+  }
+
   let totalOutstanding = new Decimal(0)
   let totalDisbursed = new Decimal(0)
   let totalPaid = new Decimal(0)
@@ -117,9 +132,8 @@ export async function GET(req: NextRequest) {
     arrearsBreakdown[bucketKey].outstanding =
       arrearsBreakdown[bucketKey].outstanding.plus(outstanding)
 
-    const stageKey = computeDelinquencyStage(loan.daysInArrears, {
-      dueDate: loan.expectedCompletionDate,
-    })
+    const dueDate = nearestDueByLoan[loan.loanNo] ?? loan.expectedCompletionDate
+    const stageKey = computeDelinquencyStage(loan.daysInArrears, { dueDate })
     delinquencyBreakdown[stageKey] ??= { count: 0, outstanding: new Decimal(0) }
     delinquencyBreakdown[stageKey].count++
     delinquencyBreakdown[stageKey].outstanding =
@@ -144,8 +158,8 @@ export async function GET(req: NextRequest) {
     if (loan.isCreditBalance) creditBalances++
 
     // "Due" KPIs only apply to loans not yet overdue (daysInArrears <= 0).
-    if (loan.daysInArrears <= 0 && loan.expectedCompletionDate) {
-      const due = loan.expectedCompletionDate
+    if (loan.daysInArrears <= 0 && dueDate) {
+      const due = dueDate
       if (due >= startOfToday && due < endOfWeek) dueThisWeek++
       if (due >= startOfToday && due < endOfMonth) dueThisMonth++
       if (isSameDay(due, startOfToday)) dueToday++

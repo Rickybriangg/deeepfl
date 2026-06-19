@@ -33,14 +33,14 @@ Interactive dashboard displaying:
 
 ### 1.2 Automated Due Monitoring
 System must automatically:
-- [~] **Due Date Tracking** — monitor loan due dates continuously *(uses expectedCompletionDate; per-installment schedule pending)*
+- [x] **Due Date Tracking** — monitor loan due dates continuously *(uses the nearest manually-entered `Installment` due date when a schedule exists, falling back to `expectedCompletionDate` otherwise — `/api/analytics`)*
 - [x] Track upcoming installments *(`Installment` model — manually entered per case on the Cases page "Installment schedule" tab, since the import feed has no interest rate/frequency to auto-generate a schedule from; due/paid status tracked per row)*
 - [x] Detect overdue payments instantly *(via daysInArrears)*
 - [x] Classify delinquency stages automatically *(`computeDelinquencyStage`)*
 
 Delinquency categories *(computed in `lib/recovery-logic.ts`, surfaced on Dashboard)*:
 - [x] Current
-- [~] Due Today *(best-effort via due date; full support needs installment schedule)*
+- [x] Due Today *(prefers the nearest pending `Installment` due date when a schedule exists, else loan-level due date)*
 - [x] 1–7 Days Overdue
 - [x] 8–30 Days Overdue
 - [x] 31–60 Days Overdue
@@ -87,7 +87,6 @@ days-in-arrears threshold; every transition logs a `RecoveryAction` and an
 ### 1.5 Recovery Officer Management
 - [~] Recovery Officer Dashboard *(Cases page "My queue" view serves this; no dedicated officer-only dashboard yet)*
 - [x] Assigned Accounts List *(Cases page "My queue" view)*
-- [ ] Visit Scheduling
 - [x] Call Logs *("Call" action type in case action log)*
 - [x] Follow-up Notes *(`notes` field on RecoveryAction)*
 - [x] Promise-to-Pay Tracking *(see 1.6)*
@@ -166,7 +165,7 @@ Integrate with:
 Automatically:
 - [x] Reconcile payments *(logging a "Payment received" action reconciles against the loan: decrements outstanding, increments total paid, audit-logged as `PAYMENT_RECONCILED`)*
 - [x] Update balances *(same — `outstandingBalance`/`totalPaid` updated atomically with the payment)*
-- [~] Close installments *(no per-installment schedule model yet; when a balance clears the case auto-moves to `Recovered`)*
+- [x] Close installments *(logging a "Payment received" action now also applies the payment against the manually-entered `Installment` schedule, oldest-due-first, marking each fully covered installment Paid; when the loan balance clears the case still auto-moves to `Recovered`)*
 - [x] Generate receipts *(`/api/payments/[id]/receipt` — PDF receipt per payment, downloadable from the case action history)*
 
 > The four items above are credential-free and work today for payments

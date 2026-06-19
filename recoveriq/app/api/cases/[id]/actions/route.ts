@@ -44,25 +44,27 @@ export async function POST(
     },
   })
 
-  if (data.newStatus) {
+  if (data.newStatus || data.nextActionDate) {
     const before = await prisma.recoveryCase.findUnique({ where: { id } })
     await prisma.recoveryCase.update({
       where: { id },
       data: {
-        status: data.newStatus,
+        status: data.newStatus ?? undefined,
         nextActionDate: data.nextActionDate ? new Date(data.nextActionDate) : undefined,
       },
     })
-    await prisma.auditLog.create({
-      data: {
-        actorId: officerId,
-        action: 'CASE_STATUS_CHANGED',
-        entity: 'RecoveryCase',
-        entityId: id,
-        before: JSON.stringify({ status: before?.status }),
-        after: JSON.stringify({ status: data.newStatus }),
-      },
-    })
+    if (data.newStatus) {
+      await prisma.auditLog.create({
+        data: {
+          actorId: officerId,
+          action: 'CASE_STATUS_CHANGED',
+          entity: 'RecoveryCase',
+          entityId: id,
+          before: JSON.stringify({ status: before?.status }),
+          after: JSON.stringify({ status: data.newStatus }),
+        },
+      })
+    }
   }
 
   return NextResponse.json({ action })

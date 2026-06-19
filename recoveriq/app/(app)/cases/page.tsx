@@ -192,16 +192,18 @@ function CasesPageInner() {
                 </select>
               </div>
               {form.newStatus === 'Promised to pay' && (
-                <>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Amount promised (KES)</label>
-                    <input value={form.amountPromised} onChange={(e) => setForm((f) => ({ ...f, amountPromised: e.target.value }))} className="w-full text-sm border border-gray-300 rounded-lg px-2 py-1.5" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Commitment date</label>
-                    <input type="date" value={form.nextActionDate} onChange={(e) => setForm((f) => ({ ...f, nextActionDate: e.target.value }))} className="w-full text-sm border border-gray-300 rounded-lg px-2 py-1.5" />
-                  </div>
-                </>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Amount promised (KES)</label>
+                  <input value={form.amountPromised} onChange={(e) => setForm((f) => ({ ...f, amountPromised: e.target.value }))} className="w-full text-sm border border-gray-300 rounded-lg px-2 py-1.5" />
+                </div>
+              )}
+              {(form.newStatus === 'Promised to pay' || form.type === 'Field visit') && (
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    {form.type === 'Field visit' && form.newStatus !== 'Promised to pay' ? 'Scheduled visit date' : 'Commitment date'}
+                  </label>
+                  <input type="date" value={form.nextActionDate} onChange={(e) => setForm((f) => ({ ...f, nextActionDate: e.target.value }))} className="w-full text-sm border border-gray-300 rounded-lg px-2 py-1.5" />
+                </div>
               )}
             </div>
 

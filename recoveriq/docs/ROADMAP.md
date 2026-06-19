@@ -23,8 +23,8 @@ Interactive dashboard displaying:
 - [x] Loans Due Today
 - [x] Loans Due This Week
 - [x] Loans Due This Month
-- [ ] Collection Performance
-- [ ] Recovery Rate
+- [ ] Collection Performance *(needs dated payment-transaction history to compute period-over-period collections; only cumulative `totalPaid` exists today)*
+- [x] Recovery Rate *(`Recovery Rate` KPI, already shipped)*
 - [x] Default Rate
 - [x] Loan Aging Analysis *(Portfolio page "Arrears Aging" chart)*
 - [x] Collector Performance Ranking *(Portfolio page table)*

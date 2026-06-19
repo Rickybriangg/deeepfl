@@ -26,7 +26,7 @@ Interactive dashboard displaying:
 - [ ] Collection Performance
 - [ ] Recovery Rate
 - [x] Default Rate
-- [ ] Loan Aging Analysis
+- [x] Loan Aging Analysis *(Portfolio page "Arrears Aging" chart)*
 - [ ] Collector Performance Ranking
 - [ ] Branch Performance
 - [ ] Recovery Trends

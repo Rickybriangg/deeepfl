@@ -1,0 +1,3 @@
+# Stray dependency/build caches at the repo root (the app lives in recoveriq/).
+node_modules/
+.vite/

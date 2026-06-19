@@ -226,14 +226,22 @@ export interface RiskScore {
   factors: string[]
 }
 
-export function bandForScore(score: number): RiskBand {
-  if (score >= 75) return 'Critical'
-  if (score >= 50) return 'High'
-  if (score >= 25) return 'Medium'
+export interface RiskBandThresholds {
+  mediumMin: number
+  highMin: number
+  criticalMin: number
+}
+
+const DEFAULT_RISK_THRESHOLDS: RiskBandThresholds = { mediumMin: 25, highMin: 50, criticalMin: 75 }
+
+export function bandForScore(score: number, thresholds: RiskBandThresholds = DEFAULT_RISK_THRESHOLDS): RiskBand {
+  if (score >= thresholds.criticalMin) return 'Critical'
+  if (score >= thresholds.highMin) return 'High'
+  if (score >= thresholds.mediumMin) return 'Medium'
   return 'Low'
 }
 
-export function computeRiskScore(input: RiskScoreInput): RiskScore {
+export function computeRiskScore(input: RiskScoreInput, thresholds?: RiskBandThresholds): RiskScore {
   const factors: string[] = []
   let score = 0
 
@@ -316,7 +324,7 @@ export function computeRiskScore(input: RiskScoreInput): RiskScore {
   }
 
   score = Math.min(100, Math.round(score))
-  return { score, band: bandForScore(score), factors }
+  return { score, band: bandForScore(score, thresholds), factors }
 }
 
 // ---------------------------------------------------------------------------
@@ -332,28 +340,29 @@ export interface RecoveryPrediction {
   priority: number // 0–100, higher = action sooner
 }
 
+export interface RiskBandStrategies {
+  Low: string
+  Medium: string
+  High: string
+  Critical: string
+}
+
+const DEFAULT_RISK_STRATEGIES: RiskBandStrategies = {
+  Low: 'Automated friendly reminder (SMS/WhatsApp)',
+  Medium: 'Officer call + payment plan offer',
+  High: 'Field visit and restructure negotiation',
+  Critical: 'Demand letter / legal escalation',
+}
+
 export function predictRecovery(
   risk: RiskScore,
-  outstandingBalance: string
+  outstandingBalance: string,
+  strategies: RiskBandStrategies = DEFAULT_RISK_STRATEGIES
 ): RecoveryPrediction {
   // Payment probability is the inverse of risk, lightly floored/capped.
   const paymentProbability = Math.max(5, Math.min(95, 100 - risk.score))
 
-  let recommendedStrategy: string
-  switch (risk.band) {
-    case 'Low':
-      recommendedStrategy = 'Automated friendly reminder (SMS/WhatsApp)'
-      break
-    case 'Medium':
-      recommendedStrategy = 'Officer call + payment plan offer'
-      break
-    case 'High':
-      recommendedStrategy = 'Field visit and restructure negotiation'
-      break
-    case 'Critical':
-      recommendedStrategy = 'Demand letter / legal escalation'
-      break
-  }
+  const recommendedStrategy = strategies[risk.band]
 
   // Prioritise by recovery potential: high risk AND high balance first.
   let balanceWeight = 0

@@ -209,6 +209,21 @@ model AutomationRule {
   updatedAt        DateTime @updatedAt
 }
 
+// Admin-configurable risk-band thresholds and recommended strategies
+// (roadmap 1.13) for the Risk Scoring (1.7) / Predictive Recovery (1.8)
+// engines. Singleton row, id always "default".
+model RiskSettings {
+  id               String   @id @default("default")
+  mediumMin        Int      @default(25)
+  highMin          Int      @default(50)
+  criticalMin      Int      @default(75)
+  strategyLow      String   @default("Automated friendly reminder (SMS/WhatsApp)")
+  strategyMedium   String   @default("Officer call + payment plan offer")
+  strategyHigh     String   @default("Field visit and restructure negotiation")
+  strategyCritical String   @default("Demand letter / legal escalation")
+  updatedAt        DateTime @updatedAt
+}
+
 // Per-officer monthly collection targets (roadmap 1.5 "Recovery Targets").
 // `periodMonth` is "YYYY-MM"; actual collections for the period are derived
 // at read time from RecoveryAction.amountReceived, not stored here.

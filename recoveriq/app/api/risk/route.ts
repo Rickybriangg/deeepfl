@@ -17,24 +17,42 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const band = searchParams.get('band') // optional filter
 
-  const loans = await prisma.loan.findMany({
-    include: { recoveryCase: { include: { actions: { take: 20, orderBy: { timestamp: 'desc' } } } } },
-  })
+  const [loans, riskSettings] = await Promise.all([
+    prisma.loan.findMany({
+      include: { recoveryCase: { include: { actions: { take: 20, orderBy: { timestamp: 'desc' } } } } },
+    }),
+    prisma.riskSettings.upsert({ where: { id: 'default' }, create: { id: 'default' }, update: {} }),
+  ])
+
+  const thresholds = {
+    mediumMin: riskSettings.mediumMin,
+    highMin: riskSettings.highMin,
+    criticalMin: riskSettings.criticalMin,
+  }
+  const strategies = {
+    Low: riskSettings.strategyLow,
+    Medium: riskSettings.strategyMedium,
+    High: riskSettings.strategyHigh,
+    Critical: riskSettings.strategyCritical,
+  }
 
   const scored = loans.map((l) => {
     // Count broken promises from the case's action history (auto-escalated notes).
     const brokenPromises =
       l.recoveryCase?.actions.filter((a) => a.outcome?.includes('PTP broken')).length ?? 0
 
-    const risk = computeRiskScore({
-      daysInArrears: l.daysInArrears,
-      classification: l.classification,
-      dormancyDays: l.dormancyDays,
-      outstandingBalance: l.outstandingBalance,
-      disbursedAmount: l.disbursedAmount,
-      brokenPromises,
-    })
-    const prediction = predictRecovery(risk, l.outstandingBalance)
+    const risk = computeRiskScore(
+      {
+        daysInArrears: l.daysInArrears,
+        classification: l.classification,
+        dormancyDays: l.dormancyDays,
+        outstandingBalance: l.outstandingBalance,
+        disbursedAmount: l.disbursedAmount,
+        brokenPromises,
+      },
+      thresholds
+    )
+    const prediction = predictRecovery(risk, l.outstandingBalance, strategies)
 
     return {
       loanNo: l.loanNo,

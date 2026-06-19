@@ -11,12 +11,25 @@ interface Rule {
   enabled: boolean
 }
 
+interface RiskSettings {
+  mediumMin: number
+  highMin: number
+  criticalMin: number
+  strategyLow: string
+  strategyMedium: string
+  strategyHigh: string
+  strategyCritical: string
+}
+
 const ACTIONS = ['notify', 'assign_officer', 'escalate_supervisor', 'escalate_legal']
 
 export default function AutomationPage() {
   const [rules, setRules] = useState<Rule[]>([])
   const [loading, setLoading] = useState(true)
   const [savingLevel, setSavingLevel] = useState<number | null>(null)
+
+  const [riskSettings, setRiskSettings] = useState<RiskSettings | null>(null)
+  const [savingRisk, setSavingRisk] = useState(false)
 
   useEffect(() => {
     fetch('/api/automation-rules')
@@ -26,7 +39,28 @@ export default function AutomationPage() {
         setLoading(false)
       })
       .catch(() => setLoading(false))
+
+    fetch('/api/risk-settings')
+      .then((r) => r.json())
+      .then((d) => setRiskSettings(d))
+      .catch(() => {})
   }, [])
+
+  function updateRiskField<K extends keyof RiskSettings>(key: K, value: RiskSettings[K]) {
+    setRiskSettings((prev) => (prev ? { ...prev, [key]: value } : prev))
+  }
+
+  async function saveRiskSettings() {
+    if (!riskSettings) return
+    setSavingRisk(true)
+    const res = await fetch('/api/risk-settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(riskSettings),
+    })
+    if (res.ok) setRiskSettings(await res.json())
+    setSavingRisk(false)
+  }
 
   async function save(rule: Rule) {
     setSavingLevel(rule.level)
@@ -135,6 +169,76 @@ export default function AutomationPage() {
               ))}
             </tbody>
           </table>
+        )}
+      </div>
+
+      <div className="mt-8 mb-6">
+        <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Risk Thresholds & Recovery Strategies</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+          Configure the score cutoffs for each risk band and the recommended strategy shown on the Risk page,
+          without touching code.
+        </p>
+      </div>
+
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+        {!riskSettings ? (
+          <p className="text-sm text-gray-500 dark:text-gray-400">Loading…</p>
+        ) : (
+          <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-4 max-w-xl">
+              <div>
+                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Medium min score</label>
+                <input
+                  type="number"
+                  value={riskSettings.mediumMin}
+                  onChange={(e) => updateRiskField('mediumMin', Number(e.target.value))}
+                  className="border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1 w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">High min score</label>
+                <input
+                  type="number"
+                  value={riskSettings.highMin}
+                  onChange={(e) => updateRiskField('highMin', Number(e.target.value))}
+                  className="border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1 w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Critical min score</label>
+                <input
+                  type="number"
+                  value={riskSettings.criticalMin}
+                  onChange={(e) => updateRiskField('criticalMin', Number(e.target.value))}
+                  className="border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1 w-full"
+                />
+              </div>
+            </div>
+
+            {([
+              ['strategyLow', 'Low risk strategy'],
+              ['strategyMedium', 'Medium risk strategy'],
+              ['strategyHigh', 'High risk strategy'],
+              ['strategyCritical', 'Critical risk strategy'],
+            ] as [keyof RiskSettings, string][]).map(([key, label]) => (
+              <div key={key}>
+                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">{label}</label>
+                <input
+                  value={riskSettings[key] as string}
+                  onChange={(e) => updateRiskField(key, e.target.value)}
+                  className="border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1 w-full max-w-xl"
+                />
+              </div>
+            ))}
+
+            <button
+              onClick={saveRiskSettings}
+              disabled={savingRisk}
+              className="text-sm bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg"
+            >
+              {savingRisk ? 'Saving…' : 'Save'}
+            </button>
+          </div>
         )}
       </div>
     </div>

@@ -39,6 +39,7 @@ export async function GET(req: NextRequest) {
   let par30Outstanding = new Decimal(0)
   let positiveOutstanding = new Decimal(0)
   let totalOverdue = new Decimal(0)
+  let defaultedOutstanding = new Decimal(0)
 
   const tierBreakdown: Record<string, { count: number; outstanding: Decimal }> = {}
   const classBreakdown: Record<string, { count: number; outstanding: Decimal }> = {}
@@ -79,6 +80,9 @@ export async function GET(req: NextRequest) {
       }
       if (loan.daysInArrears > 0) {
         totalOverdue = totalOverdue.plus(outstanding)
+      }
+      if (loan.daysInArrears > 180) {
+        defaultedOutstanding = defaultedOutstanding.plus(outstanding)
       }
     }
 
@@ -149,6 +153,9 @@ export async function GET(req: NextRequest) {
   const par30 = positiveOutstanding.gt(0)
     ? par30Outstanding.div(positiveOutstanding).mul(100).toNumber()
     : null
+  const defaultRate = positiveOutstanding.gt(0)
+    ? defaultedOutstanding.div(positiveOutstanding).mul(100).toNumber()
+    : null
 
   function toObj(b: Record<string, { count: number; outstanding: Decimal }>) {
     return Object.fromEntries(
@@ -167,6 +174,7 @@ export async function GET(req: NextRequest) {
     recoveryRate,
     nplRatio,
     par30,
+    defaultRate,
     dormant365,
     creditBalances,
     dueToday,

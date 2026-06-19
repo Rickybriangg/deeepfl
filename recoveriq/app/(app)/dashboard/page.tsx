@@ -15,6 +15,7 @@ interface Analytics {
   recoveryRate: number | null
   nplRatio: number | null
   par30: number | null
+  defaultRate?: number | null
   delinquencyBreakdown?: Breakdown
   dueToday?: number
   dueThisWeek?: number
@@ -86,6 +87,12 @@ export default function DashboardPage() {
           value={data ? formatPercent(data.par30) : '—'}
           subtitle="Portfolio at risk"
           accent="amber"
+        />
+        <KpiCard
+          title="Default Rate"
+          value={data ? formatPercent(data.defaultRate ?? null) : '—'}
+          subtitle=">180 days overdue"
+          accent="red"
         />
         <KpiCard
           title="Total Accounts"

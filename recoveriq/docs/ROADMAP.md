@@ -25,7 +25,7 @@ Interactive dashboard displaying:
 - [x] Loans Due This Month
 - [ ] Collection Performance
 - [ ] Recovery Rate
-- [ ] Default Rate
+- [x] Default Rate
 - [ ] Loan Aging Analysis
 - [ ] Collector Performance Ranking
 - [ ] Branch Performance

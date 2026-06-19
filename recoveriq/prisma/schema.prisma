@@ -161,6 +161,7 @@ model RecoveryCase {
   status            String    @default("New")
   priorityTier      String?
   nextActionDate    DateTime?
+  workflowLevel     Int?      // Last Collection Workflow Automation level applied (1-5)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
@@ -183,6 +184,21 @@ model RecoveryAction {
 
   case    RecoveryCase @relation(fields: [caseId], references: [id])
   officer User         @relation(fields: [officerId], references: [id])
+}
+
+// Admin-configurable Collection Workflow Automation rules (roadmap 1.4/1.13).
+// Each level maps a days-in-arrears range to an automatic action; editable
+// via Settings without touching code.
+model AutomationRule {
+  id               String   @id @default(cuid())
+  level            Int      @unique // 1-5
+  label            String
+  minDaysInArrears Int
+  maxDaysInArrears Int? // null = no upper bound (open-ended, e.g. Legal)
+  // notify | assign_officer | escalate_supervisor | escalate_legal
+  action           String
+  enabled          Boolean  @default(true)
+  updatedAt        DateTime @updatedAt
 }
 
 model AuditLog {

@@ -65,11 +65,17 @@ Reminder schedule (all templates configurable):
 
 ### 1.4 Collection Workflow Automation
 Automatic workflows, each stage triggered by predefined rules:
-- [ ] Level 1 — Friendly reminder
-- [ ] Level 2 — Urgent notification
-- [ ] Level 3 — Recovery officer assignment
-- [ ] Level 4 — Supervisor escalation
-- [ ] Level 5 — Legal recovery escalation
+- [x] Level 1 — Friendly reminder *(`notify`: logs a Note action + AuditLog entry)*
+- [x] Level 2 — Urgent notification *(`notify`)*
+- [x] Level 3 — Recovery officer assignment *(`assign_officer`: round-robin to the Officer with fewest open cases)*
+- [x] Level 4 — Supervisor escalation *(`escalate_supervisor`: sets `priorityTier`)*
+- [x] Level 5 — Legal recovery escalation *(`escalate_legal`: sets `status = 'Legal'`)*
+
+Implemented as `/api/cron/workflow-automation` (daily Vercel cron), driven by
+the `AutomationRule` table (see 1.13). Each overdue loan's `RecoveryCase`
+is advanced through `workflowLevel` 1–5 as it crosses each rule's
+days-in-arrears threshold; every transition logs a `RecoveryAction` and an
+`AuditLog` entry.
 
 ### 1.5 Recovery Officer Management
 - [~] Recovery Officer Dashboard *(Cases page "My queue" view serves this; no dedicated officer-only dashboard yet)*
@@ -159,12 +165,12 @@ Export formats:
 
 ### 1.13 Automation Rules Engine
 Administrators configure (without modifying code):
-- [ ] Reminder frequencies
-- [ ] Escalation timelines
-- [ ] Collector assignment logic
-- [ ] Risk thresholds
-- [ ] Legal trigger points
-- [ ] Recovery strategies
+- [x] Escalation timelines *(`AutomationRule.minDaysInArrears`/`maxDaysInArrears` per level, editable on the new Admin-only **Automation** page)*
+- [x] Legal trigger points *(Level 5 `escalate_legal` threshold, editable)*
+- [~] Collector assignment logic *(assignment trigger threshold is configurable; the round-robin strategy itself is fixed, not yet pluggable)*
+- [ ] Reminder frequencies *(blocked on 1.3 Reminder Engine — no channels exist to send through yet)*
+- [ ] Risk thresholds *(blocked on 1.7 Customer Risk Scoring)*
+- [ ] Recovery strategies *(blocked on 1.8 AI Predictive Recovery Engine)*
 
 ### 1.14 Audit & Compliance
 Track and maintain complete audit trails:

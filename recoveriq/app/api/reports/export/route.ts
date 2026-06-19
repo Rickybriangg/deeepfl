@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
 
   if (type === 'loans') {
     const loans = await prisma.loan.findMany()
-    rows = loans.map((l) => ({
+    rows = loans.map((l: (typeof loans)[number]) => ({
       LoanNo: l.loanNo,
       Borrower: l.borrowerName,
       Product: l.product,

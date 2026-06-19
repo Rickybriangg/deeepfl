@@ -227,7 +227,7 @@ force-dynamic reads, no caching).
 
 ### Security
 - [x] Role-Based Access Control *(Superadmin / Admin / Manager / Officer / Viewer, enforced server-side on every gated route + client-side nav)*
-- [ ] Multi-Factor Authentication *(not yet implemented; in-house TOTP is feasible without external credentials — candidate for next security pass)*
+- [x] Multi-Factor Authentication *(in-house TOTP per RFC 6238 — `lib/totp.ts`, validated against RFC test vectors; enrol/disable on the new `/security` page, enforced at sign-in via NextAuth `authorize` + a credential pre-check; no external service)*
 - [x] Encryption at Rest *(integration credentials encrypted via AES-256-GCM, `lib/crypto.ts`; Neon also encrypts the underlying volume)*
 - [x] Encryption in Transit *(all traffic over HTTPS/TLS on Vercel; Postgres connection over TLS)*
 - [x] Activity Logging *(`AuditLog` across imports, overrides, case changes, escalations, credential changes, target changes, legal actions)*

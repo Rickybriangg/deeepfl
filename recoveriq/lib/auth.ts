@@ -3,10 +3,15 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
+import { verifyTotp } from '@/lib/totp'
+
+// Thrown to signal the client that a valid TOTP code is still required.
+export const MFA_REQUIRED = 'MFA_REQUIRED'
 
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
+  token: z.string().optional(),
 })
 
 export const authOptions: NextAuthOptions = {
@@ -28,6 +33,13 @@ export const authOptions: NextAuthOptions = {
 
         const valid = await bcrypt.compare(parsed.data.password, user.password)
         if (!valid) return null
+
+        // Second factor: if MFA is enabled, a valid current TOTP code is required.
+        if (user.mfaEnabled && user.mfaSecret) {
+          const token = parsed.data.token
+          if (!token) throw new Error(MFA_REQUIRED)
+          if (!verifyTotp(user.mfaSecret, token)) throw new Error(MFA_REQUIRED)
+        }
 
         return {
           id: user.id,

@@ -7,6 +7,8 @@ export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [token, setToken] = useState('')
+  const [mfaStage, setMfaStage] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -15,15 +17,38 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
 
+    // Step 1: validate credentials and learn whether a second factor is needed.
+    const pre = await fetch('/api/mfa/precheck', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+      .then((r) => r.json())
+      .catch(() => ({ ok: false }))
+
+    if (!pre.ok) {
+      setLoading(false)
+      setError('Invalid email or password.')
+      return
+    }
+
+    if (pre.mfaRequired && !token) {
+      setLoading(false)
+      setMfaStage(true)
+      return
+    }
+
+    // Step 2: issue the session (authorize() re-checks the TOTP server-side).
     const result = await signIn('credentials', {
       email,
       password,
+      token: token || undefined,
       redirect: false,
     })
 
     setLoading(false)
     if (result?.error) {
-      setError('Invalid email or password.')
+      setError(pre.mfaRequired ? 'Invalid authenticator code.' : 'Invalid email or password.')
     } else {
       router.push('/dashboard')
     }
@@ -75,6 +100,24 @@ export default function LoginPage() {
               placeholder="••••••••"
             />
           </div>
+
+          {mfaStage && (
+            <div>
+              <label htmlFor="token" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                Authenticator code
+              </label>
+              <input
+                id="token"
+                inputMode="numeric"
+                autoFocus
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                placeholder="123456"
+              />
+              <p className="text-xs text-gray-400 mt-1">Enter the 6-digit code from your authenticator app.</p>
+            </div>
+          )}
 
           {error && (
             <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-3 py-2">

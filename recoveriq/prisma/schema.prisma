@@ -15,6 +15,12 @@ model User {
   region      String?
   countyScope String?  // comma-separated county codes
 
+  // Multi-Factor Authentication (TOTP). `mfaSecret` is the base32 shared
+  // secret; `mfaEnabled` flips true only after the user verifies a code
+  // during enrollment.
+  mfaSecret  String?
+  mfaEnabled Boolean @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

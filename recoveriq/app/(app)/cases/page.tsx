@@ -23,6 +23,15 @@ interface Case {
   isBrokenPromise?: boolean
 }
 
+interface Installment {
+  id: string
+  dueDate: string
+  amount: string
+  status: 'Pending' | 'Paid' | 'Overdue'
+  paidDate: string | null
+  paidAmount: string | null
+}
+
 const STATUSES = [
   'New', 'In progress', 'Promised to pay', 'Restructured', 'Legal',
   'CRB-listed', 'Written-off', 'Recovered', 'Closed',
@@ -59,6 +68,9 @@ function CasesPageInner() {
     amountPromised: '',
     nextActionDate: '',
   })
+  const [tab, setTab] = useState<'action' | 'installments'>('action')
+  const [installments, setInstallments] = useState<Installment[]>([])
+  const [newInstallment, setNewInstallment] = useState({ dueDate: '', amount: '' })
 
   function load() {
     setLoading(true)
@@ -91,6 +103,46 @@ function CasesPageInner() {
     setForm({ type: 'Call', outcome: '', notes: '', newStatus: '', amountPromised: '', nextActionDate: '' })
     setActive(null)
     load()
+  }
+
+  function openCase(c: Case) {
+    setActive(c)
+    setTab('action')
+    loadInstallments(c.id)
+  }
+
+  function loadInstallments(caseId: string) {
+    fetch(`/api/cases/${caseId}/installments`)
+      .then((r) => r.json())
+      .then((d) => setInstallments(d.installments ?? []))
+      .catch(() => setInstallments([]))
+  }
+
+  async function addInstallment() {
+    if (!active || !newInstallment.dueDate || !newInstallment.amount) return
+    await fetch(`/api/cases/${active.id}/installments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newInstallment),
+    })
+    setNewInstallment({ dueDate: '', amount: '' })
+    loadInstallments(active.id)
+  }
+
+  async function markInstallment(id: string, status: Installment['status']) {
+    if (!active) return
+    await fetch(`/api/installments/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    })
+    loadInstallments(active.id)
+  }
+
+  async function deleteInstallment(id: string) {
+    if (!active) return
+    await fetch(`/api/installments/${id}`, { method: 'DELETE' })
+    loadInstallments(active.id)
   }
 
   return (
@@ -155,7 +207,7 @@ function CasesPageInner() {
                   <td className="py-2 px-3">{c.officer?.name ?? '—'}</td>
                   <td className="py-2 px-3">{c.nextActionDate ? new Date(c.nextActionDate).toLocaleDateString() : '—'}</td>
                   <td className="py-2 px-3">
-                    <button onClick={() => setActive(c)} className="text-blue-700 text-xs font-medium">Log action</button>
+                    <button onClick={() => openCase(c)} className="text-blue-700 text-xs font-medium">Log action</button>
                   </td>
                 </tr>
               ))}
@@ -169,6 +221,85 @@ function CasesPageInner() {
           <div className="bg-white dark:bg-gray-900 rounded-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
             <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{active.loanNo} — {active.loan.borrowerName}</h3>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Recent history: {active.actions.map((a) => a.type).join(', ') || 'none'}</p>
+
+            <div className="flex gap-2 mb-4">
+              <button
+                onClick={() => setTab('action')}
+                className={`text-xs px-3 py-1 rounded-full font-medium ${tab === 'action' ? 'bg-blue-700 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}
+              >
+                Log action
+              </button>
+              <button
+                onClick={() => setTab('installments')}
+                className={`text-xs px-3 py-1 rounded-full font-medium ${tab === 'installments' ? 'bg-blue-700 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}
+              >
+                Installment schedule
+              </button>
+            </div>
+
+            {tab === 'installments' ? (
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {installments.length === 0 ? (
+                  <p className="text-xs text-gray-500 dark:text-gray-400">No installments entered yet.</p>
+                ) : (
+                  installments.map((i) => (
+                    <div key={i.id} className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-1.5">
+                      <div className="text-xs">
+                        <span className="font-medium">{new Date(i.dueDate).toLocaleDateString()}</span>
+                        {' · '}
+                        {formatKES(i.amount)}
+                        <span
+                          className={`ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] font-medium ${
+                            i.status === 'Paid'
+                              ? 'bg-green-100 text-green-700'
+                              : i.status === 'Overdue'
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-gray-100 text-gray-600'
+                          }`}
+                        >
+                          {i.status}
+                        </span>
+                      </div>
+                      <div className="flex gap-2">
+                        {i.status !== 'Paid' && (
+                          <button onClick={() => markInstallment(i.id, 'Paid')} className="text-green-700 text-[11px] font-medium">
+                            Mark paid
+                          </button>
+                        )}
+                        {i.status !== 'Pending' && (
+                          <button onClick={() => markInstallment(i.id, 'Pending')} className="text-gray-500 text-[11px] font-medium">
+                            Reset
+                          </button>
+                        )}
+                        <button onClick={() => deleteInstallment(i.id)} className="text-red-600 text-[11px] font-medium">
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+
+                <div className="flex gap-2 pt-2">
+                  <input
+                    type="date"
+                    value={newInstallment.dueDate}
+                    onChange={(e) => setNewInstallment((f) => ({ ...f, dueDate: e.target.value }))}
+                    className="text-xs border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1.5 flex-1"
+                  />
+                  <input
+                    placeholder="Amount"
+                    value={newInstallment.amount}
+                    onChange={(e) => setNewInstallment((f) => ({ ...f, amount: e.target.value }))}
+                    className="text-xs border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1.5 w-24"
+                  />
+                  <button onClick={addInstallment} className="text-xs bg-blue-700 hover:bg-blue-800 text-white px-3 py-1.5 rounded-lg">
+                    Add
+                  </button>
+                </div>
+                <button onClick={() => setActive(null)} className="text-gray-600 dark:text-gray-300 text-sm pt-2">Close</button>
+              </div>
+            ) : (
+              <>
             {active.actions.some((a) => a.type === 'Payment received') && (
               <div className="mb-4 space-y-1">
                 {active.actions
@@ -228,6 +359,8 @@ function CasesPageInner() {
               <button onClick={logAction} className="bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg">Save</button>
               <button onClick={() => setActive(null)} className="text-gray-600 dark:text-gray-300 text-sm px-4 py-2">Cancel</button>
             </div>
+              </>
+            )}
           </div>
         </div>
       )}

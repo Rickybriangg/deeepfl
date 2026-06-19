@@ -34,7 +34,7 @@ Interactive dashboard displaying:
 ### 1.2 Automated Due Monitoring
 System must automatically:
 - [~] **Due Date Tracking** — monitor loan due dates continuously *(uses expectedCompletionDate; per-installment schedule pending)*
-- [ ] Track upcoming installments *(needs installment schedule model)*
+- [x] Track upcoming installments *(`Installment` model — manually entered per case on the Cases page "Installment schedule" tab, since the import feed has no interest rate/frequency to auto-generate a schedule from; due/paid status tracked per row)*
 - [x] Detect overdue payments instantly *(via daysInArrears)*
 - [x] Classify delinquency stages automatically *(`computeDelinquencyStage`)*
 

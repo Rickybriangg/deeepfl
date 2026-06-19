@@ -172,10 +172,32 @@ model RecoveryCase {
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
-  loan       Loan             @relation(fields: [loanNo], references: [loanNo])
-  officer    User?            @relation(fields: [assignedOfficerId], references: [id])
-  actions    RecoveryAction[]
-  legalCases LegalCase[]
+  loan         Loan             @relation(fields: [loanNo], references: [loanNo])
+  officer      User?            @relation(fields: [assignedOfficerId], references: [id])
+  actions      RecoveryAction[]
+  legalCases   LegalCase[]
+  installments Installment[]
+}
+
+// Manually-entered repayment schedule (roadmap 1.2/1.9 "Track upcoming
+// installments"). The import feed has no interest rate / repayment frequency,
+// so this is filled in by hand per loan rather than auto-generated.
+model Installment {
+  id        String    @id @default(cuid())
+  caseId    String
+  dueDate   DateTime
+  amount    String
+  // Pending | Paid | Overdue
+  status    String    @default("Pending")
+  paidDate  DateTime?
+  paidAmount String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  case RecoveryCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+  @@index([dueDate])
 }
 
 model RecoveryAction {

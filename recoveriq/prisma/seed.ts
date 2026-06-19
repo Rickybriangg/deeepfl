@@ -17,7 +17,7 @@ async function main() {
       name: 'System Admin',
       email: 'admin@yedf.go.ke',
       password: adminPw,
-      role: 'Admin',
+      role: 'Superadmin',
     },
   })
 

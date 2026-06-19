@@ -11,7 +11,7 @@ model User {
   name        String
   email       String   @unique
   password    String
-  role        String   @default("Officer") // Admin | Manager | Officer | Viewer
+  role        String   @default("Officer") // Superadmin | Admin | Manager | Officer | Viewer
   region      String?
   countyScope String?  // comma-separated county codes
 
@@ -199,6 +199,19 @@ model AutomationRule {
   action           String
   enabled          Boolean  @default(true)
   updatedAt        DateTime @updatedAt
+}
+
+// Superadmin-only integration credentials (roadmap "Settings & Credentials").
+// `config` is an encrypted (AES-256-GCM) JSON blob of credential fields —
+// never stored or logged in plaintext. `lastVerifiedAt` is set by the
+// integration's "Test connection" action.
+model IntegrationSetting {
+  id             String    @id @default(cuid())
+  key            String    @unique // e.g. "whatsapp" | "sms" | "smtp" | "mpesa" | ...
+  config         String?   // encrypted JSON, null until first saved
+  lastVerifiedAt DateTime?
+  updatedById    String?
+  updatedAt      DateTime  @updatedAt
 }
 
 model AuditLog {

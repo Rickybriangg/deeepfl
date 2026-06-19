@@ -10,7 +10,7 @@ export const maxDuration = 60
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
   const role = (session?.user as { role?: string } | undefined)?.role
-  if (!session || role !== 'Admin') {
+  if (!session || (role !== 'Admin' && role !== 'Superadmin')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

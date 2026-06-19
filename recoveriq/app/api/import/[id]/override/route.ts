@@ -12,7 +12,7 @@ export async function POST(
 ) {
   const session = await getServerSession(authOptions)
   const role = (session?.user as { role?: string } | undefined)?.role
-  if (!session || role !== 'Admin') {
+  if (!session || (role !== 'Admin' && role !== 'Superadmin')) {
     return NextResponse.json(
       { error: 'Only an Admin may override a failed reconciliation' },
       { status: 401 }

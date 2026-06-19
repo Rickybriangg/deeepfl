@@ -261,11 +261,17 @@ encrypted at rest and never exposed to lower roles or the client.
 | Business Central | Tenant, Client ID, Client secret, Environment | [ ] |
 
 **Implementation notes**
-- [ ] Add a `Superadmin` role (above `Admin`) or scope this page to a designated superadmin account.
-- [ ] Settings model with encrypted secret storage (encryption at rest).
-- [ ] Settings → Integrations UI, gated server-side and client-side to Superadmin.
-- [ ] Each integration: connection test button + last-verified timestamp.
-- [ ] Audit-log every change to credentials (who/when/what — never log secret values).
+- [x] Add a `Superadmin` role (above `Admin`) *(seeded system admin account promoted to `Superadmin`; role is a free-text field so no enum migration needed)*
+- [x] Settings model with encrypted secret storage (encryption at rest) *(`IntegrationSetting` model; AES-256-GCM via `lib/crypto.ts`, key from `SETTINGS_ENCRYPTION_KEY` env var)*
+- [x] Settings → Integrations UI, gated server-side and client-side to Superadmin *(`/settings/integrations` page + `/api/settings/integrations` route, both check `role === 'Superadmin'`)*
+- [x] Each integration: connection test button + last-verified timestamp *(`/api/settings/integrations/test` — currently a stub that confirms credentials are saved; replace with a real provider handshake once that integration's actual keys are supplied)*
+- [x] Audit-log every change to credentials (who/when/what — never log secret values) *(`AuditLog` entries `INTEGRATION_CREDENTIALS_UPDATED` / `INTEGRATION_CONNECTION_TESTED` log the integration key and field names only, never values)*
+
+All 15 integrations from the table above are scaffolded in `lib/integrations.ts`
+with their credential fields, ready to receive real keys — entering them
+unblocks the corresponding 🔑 roadmap items (1.3, 1.7's external provider,
+1.9's maps/GPS, 1.11, Section 2 Integrations) without further code changes
+to the storage layer.
 
 ---
 

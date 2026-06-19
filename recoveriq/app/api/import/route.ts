@@ -58,7 +58,7 @@ const requestSchema = z.object({
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   const role = (session?.user as { role?: string } | undefined)?.role
-  if (!session || (role !== 'Admin' && role !== 'Manager')) {
+  if (!session || (role !== 'Admin' && role !== 'Manager' && role !== 'Superadmin')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

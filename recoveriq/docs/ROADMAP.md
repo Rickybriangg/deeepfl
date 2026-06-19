@@ -85,7 +85,7 @@ days-in-arrears threshold; every transition logs a `RecoveryAction` and an
 `AuditLog` entry.
 
 ### 1.5 Recovery Officer Management
-- [~] Recovery Officer Dashboard *(Cases page "My queue" view serves this; no dedicated officer-only dashboard yet)*
+- [x] Recovery Officer Dashboard *(new `/officer` page + `/api/officer-dashboard` — queue size, due-today/broken-promise counts, recent activity, and monthly target progress, all scoped to the signed-in officer; linked from the sidebar as "My Dashboard" for the Officer role)*
 - [x] Assigned Accounts List *(Cases page "My queue" view)*
 - [x] Call Logs *("Call" action type in case action log)*
 - [x] Follow-up Notes *(`notes` field on RecoveryAction)*

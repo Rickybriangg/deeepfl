@@ -176,14 +176,14 @@ export default function ImportPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Import Loan Book</h1>
-        <p className="text-sm text-gray-500 mt-0.5">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Import Loan Book</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
           Upload .xlsx / .csv, map columns, and review reconciliation before going live.
         </p>
       </div>
 
       {step === 'upload' && (
-        <div className="bg-white rounded-xl border border-dashed border-gray-300 p-16 text-center">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-dashed border-gray-300 dark:border-gray-600 p-16 text-center">
           <input
             type="file"
             accept=".xlsx,.xls,.csv"
@@ -199,15 +199,15 @@ export default function ImportPage() {
       {step === 'map' && (
         <div className="space-y-6">
           {sheetNames.map((sheet) => (
-            <div key={sheet} className="bg-white rounded-xl border border-gray-200 p-5">
+            <div key={sheet} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-900">{sheet}</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100">{sheet}</h3>
                 <select
                   value={products[sheet]}
                   onChange={(e) =>
                     setProducts((p) => ({ ...p, [sheet]: e.target.value }))
                   }
-                  className="text-sm border border-gray-300 rounded-lg px-2 py-1"
+                  className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1"
                 >
                   {PRODUCTS.map((p) => (
                     <option key={p} value={p}>
@@ -220,7 +220,7 @@ export default function ImportPage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[...REQUIRED_FIELDS, ...OPTIONAL_FIELDS].map((field) => (
                   <div key={field}>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
                       {field}
                       {(REQUIRED_FIELDS as readonly string[]).includes(field) && (
                         <span className="text-red-500"> *</span>
@@ -229,7 +229,7 @@ export default function ImportPage() {
                     <select
                       value={mappings[sheet]?.[field] ?? ''}
                       onChange={(e) => updateMapping(sheet, field, e.target.value)}
-                      className="w-full text-sm border border-gray-300 rounded-lg px-2 py-1.5"
+                      className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1.5"
                     >
                       <option value="">— not mapped —</option>
                       {(headersBySheet[sheet] ?? []).map((col) => (
@@ -270,7 +270,7 @@ export default function ImportPage() {
             </button>
             <button
               onClick={() => setStep('upload')}
-              className="text-gray-600 hover:text-gray-800 text-sm px-5 py-2.5"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-800 text-sm px-5 py-2.5"
             >
               Cancel
             </button>
@@ -311,8 +311,8 @@ export default function ImportPage() {
           </div>
 
           {/* Data quality */}
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
-            <h3 className="font-semibold text-gray-900 mb-3">Data Quality Summary</h3>
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Data Quality Summary</h3>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
               <Stat label="Never paid" value={result.dataQuality.neverPaid} />
               <Stat label="Matured & owing" value={result.dataQuality.matured} />
@@ -327,11 +327,11 @@ export default function ImportPage() {
 
           {/* Dropped rows */}
           {result.dropReport.some((d) => d.dropped > 0) && (
-            <div className="bg-white rounded-xl border border-amber-200 p-5">
-              <h3 className="font-semibold text-gray-900 mb-3">Dropped Rows (by sheet)</h3>
+            <div className="bg-white dark:bg-gray-900 rounded-xl border border-amber-200 p-5">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Dropped Rows (by sheet)</h3>
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-gray-500 border-b">
+                  <tr className="text-left text-gray-500 dark:text-gray-400 border-b">
                     <th className="py-1.5 pr-4">Sheet</th>
                     <th className="py-1.5">Dropped</th>
                   </tr>
@@ -340,7 +340,7 @@ export default function ImportPage() {
                   {result.dropReport
                     .filter((d) => d.dropped > 0)
                     .map((d) => (
-                      <tr key={d.sheet} className="border-b border-gray-100">
+                      <tr key={d.sheet} className="border-b border-gray-100 dark:border-gray-800">
                         <td className="py-1.5 pr-4">{d.sheet}</td>
                         <td className="py-1.5">{d.dropped}</td>
                       </tr>
@@ -352,13 +352,13 @@ export default function ImportPage() {
 
           {/* Reconciliation table */}
           {result.reconciliation.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
-              <h3 className="font-semibold text-gray-900 mb-3">
+            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">
                 Subledger vs Control Reconciliation
               </h3>
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-gray-500 border-b">
+                  <tr className="text-left text-gray-500 dark:text-gray-400 border-b">
                     <th className="py-1.5 pr-4">Product</th>
                     <th className="py-1.5 pr-4">Subledger Outstanding</th>
                     <th className="py-1.5 pr-4">Control Outstanding</th>
@@ -368,7 +368,7 @@ export default function ImportPage() {
                 </thead>
                 <tbody>
                   {result.reconciliation.map((r) => (
-                    <tr key={r.product} className="border-b border-gray-100">
+                    <tr key={r.product} className="border-b border-gray-100 dark:border-gray-800">
                       <td className="py-1.5 pr-4">{r.product}</td>
                       <td className="py-1.5 pr-4">
                         {formatKES(r.subledgerOutstanding)}
@@ -426,14 +426,14 @@ function SummaryCard({
 }) {
   return (
     <div
-      className={`bg-white rounded-xl border-l-4 p-4 shadow-sm ${
+      className={`bg-white dark:bg-gray-900 rounded-xl border-l-4 p-4 shadow-sm ${
         good ? 'border-green-500' : warn ? 'border-amber-500' : 'border-blue-500'
       }`}
     >
-      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
         {label}
       </p>
-      <p className="text-xl font-bold text-gray-900">{value}</p>
+      <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
     </div>
   )
 }
@@ -441,8 +441,8 @@ function SummaryCard({
 function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div>
-      <p className="text-gray-500 text-xs mb-0.5">{label}</p>
-      <p className="font-semibold text-gray-900">{value}</p>
+      <p className="text-gray-500 dark:text-gray-400 text-xs mb-0.5">{label}</p>
+      <p className="font-semibold text-gray-900 dark:text-gray-100">{value}</p>
     </div>
   )
 }

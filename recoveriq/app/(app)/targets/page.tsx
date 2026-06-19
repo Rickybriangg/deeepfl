@@ -55,26 +55,26 @@ export default function TargetsPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Recovery Targets</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Per-officer monthly collection targets vs. actual</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Recovery Targets</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Per-officer monthly collection targets vs. actual</p>
         </div>
         <input
           type="month"
           value={period}
           onChange={(e) => setPeriod(e.target.value)}
-          className="text-sm border border-gray-300 rounded-lg px-3 py-1.5"
+          className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1.5"
         />
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         {loading ? (
-          <p className="text-sm text-gray-500 p-6">Loading…</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 p-6">Loading…</p>
         ) : rows.length === 0 ? (
-          <p className="text-sm text-gray-500 p-6">No officers found.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 p-6">No officers found.</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr className="text-left text-gray-500">
+            <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+              <tr className="text-left text-gray-500 dark:text-gray-400">
                 <th className="py-2 px-3">Officer</th>
                 <th className="py-2 px-3">Target</th>
                 <th className="py-2 px-3">Actual</th>
@@ -87,14 +87,14 @@ export default function TargetsPage() {
                 const target = r.targetAmount ? Number(r.targetAmount) : null
                 const pct = target && target > 0 ? Math.round((r.actualAmount / target) * 100) : null
                 return (
-                  <tr key={r.officerId} className="border-b border-gray-100 hover:bg-gray-50">
+                  <tr key={r.officerId} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50">
                     <td className="py-2 px-3 font-medium">{r.officerName}</td>
                     <td className="py-2 px-3">
                       {editing === r.officerId ? (
                         <input
                           value={draft}
                           onChange={(e) => setDraft(e.target.value)}
-                          className="text-sm border border-gray-300 rounded-lg px-2 py-1 w-32"
+                          className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1 w-32"
                         />
                       ) : r.targetAmount ? (
                         formatKES(r.targetAmount)
@@ -121,7 +121,7 @@ export default function TargetsPage() {
                         {editing === r.officerId ? (
                           <div className="flex gap-2">
                             <button onClick={() => save(r.officerId)} className="text-blue-700 text-xs font-medium">Save</button>
-                            <button onClick={() => setEditing(null)} className="text-gray-500 text-xs">Cancel</button>
+                            <button onClick={() => setEditing(null)} className="text-gray-500 dark:text-gray-400 text-xs">Cancel</button>
                           </div>
                         ) : (
                           <button

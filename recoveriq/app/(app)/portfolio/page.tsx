@@ -149,19 +149,19 @@ export default function PortfolioPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Portfolio</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Recovery analytics across the loan book</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Portfolio</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Recovery analytics across the loan book</p>
         </div>
         <div className="flex gap-2">
-          <select value={product} onChange={(e) => setProduct(e.target.value)} className="text-sm border border-gray-300 rounded-lg px-3 py-1.5">
+          <select value={product} onChange={(e) => setProduct(e.target.value)} className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1.5">
             <option value="">All products</option>
             {PRODUCTS.map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
-          <select value={classification} onChange={(e) => setClassification(e.target.value)} className="text-sm border border-gray-300 rounded-lg px-3 py-1.5">
+          <select value={classification} onChange={(e) => setClassification(e.target.value)} className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1.5">
             <option value="">All classifications</option>
             {CLASSIFICATIONS.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
-          <select value={tier} onChange={(e) => setTier(e.target.value)} className="text-sm border border-gray-300 rounded-lg px-3 py-1.5">
+          <select value={tier} onChange={(e) => setTier(e.target.value)} className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1.5">
             <option value="">All tiers</option>
             {TIERS.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
@@ -169,8 +169,8 @@ export default function PortfolioPage() {
       </div>
 
       {!loading && data && data.totalAccounts === 0 ? (
-        <div className="bg-white rounded-xl border border-dashed border-gray-300 p-16 text-center">
-          <p className="text-gray-500 text-sm">No loans match these filters. Import data or adjust filters.</p>
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-dashed border-gray-300 dark:border-gray-600 p-16 text-center">
+          <p className="text-gray-500 dark:text-gray-400 text-sm">No loans match these filters. Import data or adjust filters.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -251,7 +251,7 @@ export default function PortfolioPage() {
 
           <ChartCard title="Recovery Trends (Daily Snapshots)" full>
             {trendData.length === 0 ? (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 No snapshots yet — captured daily, or trigger one manually after an import.
               </p>
             ) : (
@@ -270,11 +270,11 @@ export default function PortfolioPage() {
 
           <ChartCard title="Collector Performance Ranking" full>
             {officers.length === 0 ? (
-              <p className="text-sm text-gray-500">No recovery actions logged yet.</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">No recovery actions logged yet.</p>
             ) : (
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-gray-500 border-b border-gray-100">
+                  <tr className="text-left text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800">
                     <th className="py-2 font-medium">#</th>
                     <th className="py-2 font-medium">Officer</th>
                     <th className="py-2 font-medium text-right">Payments Logged</th>
@@ -285,7 +285,7 @@ export default function PortfolioPage() {
                   {officers.map((o, i) => (
                     <tr key={o.Officer} className="border-b border-gray-50">
                       <td className="py-2 text-gray-400">{i + 1}</td>
-                      <td className="py-2 text-gray-900">{o.Officer}</td>
+                      <td className="py-2 text-gray-900 dark:text-gray-100">{o.Officer}</td>
                       <td className="py-2 text-right">{o.PaymentsLogged}</td>
                       <td className="py-2 text-right font-medium">
                         {formatKESCompact(o.TotalRecoveredKES)}
@@ -304,8 +304,8 @@ export default function PortfolioPage() {
 
 function ChartCard({ title, children, full }: { title: string; children: React.ReactNode; full?: boolean }) {
   return (
-    <div className={`bg-white rounded-xl border border-gray-200 p-5 ${full ? 'lg:col-span-2' : ''}`}>
-      <h3 className="font-semibold text-gray-900 mb-3 text-sm">{title}</h3>
+    <div className={`bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5 ${full ? 'lg:col-span-2' : ''}`}>
+      <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3 text-sm">{title}</h3>
       {children}
     </div>
   )

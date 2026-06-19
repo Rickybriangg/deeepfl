@@ -53,8 +53,8 @@ export default function DashboardPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Portfolio overview — YEDF Loan Recovery</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Portfolio overview — YEDF Loan Recovery</p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
@@ -127,9 +127,9 @@ export default function DashboardPage() {
       </div>
 
       {!hasData ? (
-        <div className="bg-white rounded-xl border border-dashed border-gray-300 p-16 text-center">
-          <h2 className="text-lg font-semibold text-gray-700 mb-2">No loan data loaded</h2>
-          <p className="text-sm text-gray-500 mb-6 max-w-sm mx-auto">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-dashed border-gray-300 dark:border-gray-600 p-16 text-center">
+          <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">No loan data loaded</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">
             Import your loan book (.xlsx or .csv) to populate the dashboard with portfolio analytics.
           </p>
           <Link
@@ -143,8 +143,8 @@ export default function DashboardPage() {
         <div className="space-y-6">
           <DelinquencySection breakdown={data!.delinquencyBreakdown} />
 
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <p className="text-sm text-gray-600">
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <p className="text-sm text-gray-600 dark:text-gray-300">
               Total outstanding: {formatKES(data!.totalOutstanding)}. See the{' '}
               <Link href="/portfolio" className="text-blue-700 font-medium">
                 Portfolio
@@ -166,11 +166,11 @@ function DelinquencySection({ breakdown }: { breakdown?: Breakdown }) {
   )
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6">
-      <h2 className="text-base font-semibold text-gray-900 mb-1">
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+      <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">
         Delinquency Staging
       </h2>
-      <p className="text-xs text-gray-500 mb-4">
+      <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
         Accounts classified by days overdue
       </p>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -180,19 +180,19 @@ function DelinquencySection({ breakdown }: { breakdown?: Breakdown }) {
           return (
             <div
               key={stage}
-              className="rounded-lg border border-gray-100 p-3 flex flex-col gap-1"
+              className="rounded-lg border border-gray-100 dark:border-gray-800 p-3 flex flex-col gap-1"
             >
               <span
                 className={`self-start text-[11px] font-medium px-2 py-0.5 rounded-full ${
-                  STAGE_COLORS[stage] ?? 'bg-gray-100 text-gray-600'
+                  STAGE_COLORS[stage] ?? 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'
                 }`}
               >
                 {stage}
               </span>
-              <span className="text-xl font-bold text-gray-900">
+              <span className="text-xl font-bold text-gray-900 dark:text-gray-100">
                 {formatNumber(entry.count)}
               </span>
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-500 dark:text-gray-400">
                 {pct.toFixed(1)}% · {formatKESCompact(entry.outstanding)}
               </span>
             </div>

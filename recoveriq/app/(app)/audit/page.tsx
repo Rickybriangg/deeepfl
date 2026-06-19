@@ -36,15 +36,15 @@ export default function AuditPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Audit Log</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Audit Log</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
             Complete trail of recovery actions, system changes, and escalations
           </p>
         </div>
         <select
           value={entity}
           onChange={(e) => setEntity(e.target.value)}
-          className="text-sm border border-gray-300 rounded-lg px-3 py-1.5"
+          className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1.5"
         >
           <option value="">All entities</option>
           {entities.map((e) => (
@@ -55,15 +55,15 @@ export default function AuditPage() {
         </select>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         {loading ? (
-          <p className="text-sm text-gray-500 p-6">Loading…</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 p-6">Loading…</p>
         ) : logs.length === 0 ? (
-          <p className="text-sm text-gray-500 p-6">No audit events yet.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 p-6">No audit events yet.</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr className="text-left text-gray-500">
+            <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+              <tr className="text-left text-gray-500 dark:text-gray-400">
                 <th className="py-2 px-3">When</th>
                 <th className="py-2 px-3">Actor</th>
                 <th className="py-2 px-3">Action</th>
@@ -73,8 +73,8 @@ export default function AuditPage() {
             </thead>
             <tbody>
               {logs.map((l) => (
-                <tr key={l.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-2 px-3 whitespace-nowrap text-gray-500">
+                <tr key={l.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50">
+                  <td className="py-2 px-3 whitespace-nowrap text-gray-500 dark:text-gray-400">
                     {new Date(l.timestamp).toLocaleString()}
                   </td>
                   <td className="py-2 px-3">{l.actor.name}</td>
@@ -87,7 +87,7 @@ export default function AuditPage() {
                     {l.entity}
                     {l.entityId ? ` · ${l.entityId}` : ''}
                   </td>
-                  <td className="py-2 px-3 text-gray-500 max-w-md truncate">
+                  <td className="py-2 px-3 text-gray-500 dark:text-gray-400 max-w-md truncate">
                     {l.before ?? '—'} → {l.after ?? '—'}
                   </td>
                 </tr>

@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut, useSession } from 'next-auth/react'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 interface NavItem {
   href: string
@@ -223,6 +224,7 @@ export function Sidebar() {
             <p className="text-slate-500 text-xs truncate">{role}</p>
           </div>
         </div>
+        <ThemeToggle />
         <button
           onClick={() => signOut({ callbackUrl: '/login' })}
           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-400 hover:bg-white/5 hover:text-white transition-colors"

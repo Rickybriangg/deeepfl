@@ -33,7 +33,7 @@ const ACTION_TYPES = [
 
 export default function CasesPage() {
   return (
-    <Suspense fallback={<p className="text-sm text-gray-500">Loading…</p>}>
+    <Suspense fallback={<p className="text-sm text-gray-500 dark:text-gray-400">Loading…</p>}>
       <CasesPageInner />
     </Suspense>
   )
@@ -95,8 +95,8 @@ function CasesPageInner() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Cases</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Recovery case lifecycle & action log</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Cases</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Recovery case lifecycle & action log</p>
       </div>
 
       <div className="flex gap-2 mb-4">
@@ -105,7 +105,7 @@ function CasesPageInner() {
             key={v}
             onClick={() => setView(v)}
             className={`text-sm px-3 py-1.5 rounded-full font-medium ${
-              view === v ? 'bg-blue-700 text-white' : 'bg-white border border-gray-300 text-gray-600'
+              view === v ? 'bg-blue-700 text-white' : 'bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300'
             }`}
           >
             {v === 'mine'
@@ -119,15 +119,15 @@ function CasesPageInner() {
         ))}
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         {loading ? (
-          <p className="text-sm text-gray-500 p-6">Loading…</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 p-6">Loading…</p>
         ) : cases.length === 0 ? (
-          <p className="text-sm text-gray-500 p-6">No cases in this view.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 p-6">No cases in this view.</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr className="text-left text-gray-500">
+            <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+              <tr className="text-left text-gray-500 dark:text-gray-400">
                 <th className="py-2 px-3">Loan No</th>
                 <th className="py-2 px-3">Borrower</th>
                 <th className="py-2 px-3">Outstanding</th>
@@ -139,7 +139,7 @@ function CasesPageInner() {
             </thead>
             <tbody>
               {cases.map((c) => (
-                <tr key={c.id} className="border-b border-gray-100 hover:bg-gray-50">
+                <tr key={c.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50">
                   <td className="py-2 px-3 font-medium">{c.loanNo}</td>
                   <td className="py-2 px-3">{c.loan.borrowerName}</td>
                   <td className="py-2 px-3">{formatKES(c.loan.outstandingBalance)}</td>
@@ -165,51 +165,51 @@ function CasesPageInner() {
 
       {active && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setActive(null)}>
-          <div className="bg-white rounded-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-            <h3 className="font-semibold text-gray-900 mb-1">{active.loanNo} — {active.loan.borrowerName}</h3>
-            <p className="text-xs text-gray-500 mb-4">Recent history: {active.actions.map((a) => a.type).join(', ') || 'none'}</p>
+          <div className="bg-white dark:bg-gray-900 rounded-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{active.loanNo} — {active.loan.borrowerName}</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Recent history: {active.actions.map((a) => a.type).join(', ') || 'none'}</p>
 
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Action type</label>
-                <select value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))} className="w-full text-sm border border-gray-300 rounded-lg px-2 py-1.5">
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Action type</label>
+                <select value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))} className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1.5">
                   {ACTION_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Outcome</label>
-                <input value={form.outcome} onChange={(e) => setForm((f) => ({ ...f, outcome: e.target.value }))} className="w-full text-sm border border-gray-300 rounded-lg px-2 py-1.5" />
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Outcome</label>
+                <input value={form.outcome} onChange={(e) => setForm((f) => ({ ...f, outcome: e.target.value }))} className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1.5" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Notes</label>
-                <textarea value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} className="w-full text-sm border border-gray-300 rounded-lg px-2 py-1.5" rows={2} />
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Notes</label>
+                <textarea value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1.5" rows={2} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Update status</label>
-                <select value={form.newStatus} onChange={(e) => setForm((f) => ({ ...f, newStatus: e.target.value }))} className="w-full text-sm border border-gray-300 rounded-lg px-2 py-1.5">
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Update status</label>
+                <select value={form.newStatus} onChange={(e) => setForm((f) => ({ ...f, newStatus: e.target.value }))} className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1.5">
                   <option value="">— keep current —</option>
                   {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
               {form.newStatus === 'Promised to pay' && (
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Amount promised (KES)</label>
-                  <input value={form.amountPromised} onChange={(e) => setForm((f) => ({ ...f, amountPromised: e.target.value }))} className="w-full text-sm border border-gray-300 rounded-lg px-2 py-1.5" />
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Amount promised (KES)</label>
+                  <input value={form.amountPromised} onChange={(e) => setForm((f) => ({ ...f, amountPromised: e.target.value }))} className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1.5" />
                 </div>
               )}
               {(form.newStatus === 'Promised to pay' || form.type === 'Field visit') && (
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
                     {form.type === 'Field visit' && form.newStatus !== 'Promised to pay' ? 'Scheduled visit date' : 'Commitment date'}
                   </label>
-                  <input type="date" value={form.nextActionDate} onChange={(e) => setForm((f) => ({ ...f, nextActionDate: e.target.value }))} className="w-full text-sm border border-gray-300 rounded-lg px-2 py-1.5" />
+                  <input type="date" value={form.nextActionDate} onChange={(e) => setForm((f) => ({ ...f, nextActionDate: e.target.value }))} className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1.5" />
                 </div>
               )}
             </div>
 
             <div className="flex gap-2 mt-5">
               <button onClick={logAction} className="bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg">Save</button>
-              <button onClick={() => setActive(null)} className="text-gray-600 text-sm px-4 py-2">Cancel</button>
+              <button onClick={() => setActive(null)} className="text-gray-600 dark:text-gray-300 text-sm px-4 py-2">Cancel</button>
             </div>
           </div>
         </div>

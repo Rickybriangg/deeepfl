@@ -49,20 +49,20 @@ export default function AutomationPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Collection Workflow Automation</h1>
-        <p className="text-sm text-gray-500 mt-0.5">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Collection Workflow Automation</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
           Configure the days-in-arrears thresholds and actions for each automation level. Applied
           daily by the workflow automation cron job.
         </p>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         {loading ? (
-          <p className="text-sm text-gray-500 p-6">Loading…</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 p-6">Loading…</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr className="text-left text-gray-500">
+            <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+              <tr className="text-left text-gray-500 dark:text-gray-400">
                 <th className="py-2 px-3">Level</th>
                 <th className="py-2 px-3">Label</th>
                 <th className="py-2 px-3">Min Days</th>
@@ -74,13 +74,13 @@ export default function AutomationPage() {
             </thead>
             <tbody>
               {rules.map((r) => (
-                <tr key={r.level} className="border-b border-gray-100">
+                <tr key={r.level} className="border-b border-gray-100 dark:border-gray-800">
                   <td className="py-2 px-3 font-medium">{r.level}</td>
                   <td className="py-2 px-3">
                     <input
                       value={r.label}
                       onChange={(e) => updateField(r.level, 'label', e.target.value)}
-                      className="border border-gray-300 rounded-lg px-2 py-1 w-48"
+                      className="border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1 w-48"
                     />
                   </td>
                   <td className="py-2 px-3">
@@ -88,7 +88,7 @@ export default function AutomationPage() {
                       type="number"
                       value={r.minDaysInArrears}
                       onChange={(e) => updateField(r.level, 'minDaysInArrears', Number(e.target.value))}
-                      className="border border-gray-300 rounded-lg px-2 py-1 w-20"
+                      className="border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1 w-20"
                     />
                   </td>
                   <td className="py-2 px-3">
@@ -99,14 +99,14 @@ export default function AutomationPage() {
                       onChange={(e) =>
                         updateField(r.level, 'maxDaysInArrears', e.target.value === '' ? null : Number(e.target.value))
                       }
-                      className="border border-gray-300 rounded-lg px-2 py-1 w-20"
+                      className="border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1 w-20"
                     />
                   </td>
                   <td className="py-2 px-3">
                     <select
                       value={r.action}
                       onChange={(e) => updateField(r.level, 'action', e.target.value)}
-                      className="border border-gray-300 rounded-lg px-2 py-1"
+                      className="border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1"
                     >
                       {ACTIONS.map((a) => (
                         <option key={a} value={a}>

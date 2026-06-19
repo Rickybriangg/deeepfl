@@ -36,7 +36,7 @@ const WORKLISTS = [
 
 export default function WatchlistPage() {
   return (
-    <Suspense fallback={<p className="text-sm text-gray-500">Loading…</p>}>
+    <Suspense fallback={<p className="text-sm text-gray-500 dark:text-gray-400">Loading…</p>}>
       <WatchlistPageInner />
     </Suspense>
   )
@@ -102,8 +102,8 @@ function WatchlistPageInner() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Watchlist</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Worklists, filters, and bulk assignment</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Watchlist</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Worklists, filters, and bulk assignment</p>
       </div>
 
       <div className="flex gap-2 mb-4 flex-wrap">
@@ -112,7 +112,7 @@ function WatchlistPageInner() {
             key={w.key}
             onClick={() => setWorklist(w.key)}
             className={`text-sm px-3 py-1.5 rounded-full font-medium transition-colors ${
-              worklist === w.key ? 'bg-blue-700 text-white' : 'bg-white border border-gray-300 text-gray-600 hover:bg-gray-50'
+              worklist === w.key ? 'bg-blue-700 text-white' : 'bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50'
             }`}
           >
             {w.label}
@@ -123,7 +123,7 @@ function WatchlistPageInner() {
       {selected.size > 0 && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 mb-4 flex items-center gap-3">
           <span className="text-sm text-blue-800 font-medium">{selected.size} selected</span>
-          <select value={assignTo} onChange={(e) => setAssignTo(e.target.value)} className="text-sm border border-gray-300 rounded-lg px-2 py-1">
+          <select value={assignTo} onChange={(e) => setAssignTo(e.target.value)} className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1">
             <option value="">Assign to officer…</option>
             {officers.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
           </select>
@@ -135,15 +135,15 @@ function WatchlistPageInner() {
 
       {message && <p className="text-sm text-green-700 mb-3">{message}</p>}
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         {loading ? (
-          <p className="text-sm text-gray-500 p-6">Loading…</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 p-6">Loading…</p>
         ) : loans.length === 0 ? (
-          <p className="text-sm text-gray-500 p-6">No accounts match this worklist.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 p-6">No accounts match this worklist.</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr className="text-left text-gray-500">
+            <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+              <tr className="text-left text-gray-500 dark:text-gray-400">
                 <th className="py-2 px-3"><input type="checkbox" checked={selected.size === loans.length} onChange={toggleAll} /></th>
                 <th className="py-2 px-3">Loan No</th>
                 <th className="py-2 px-3">Borrower</th>
@@ -157,7 +157,7 @@ function WatchlistPageInner() {
             </thead>
             <tbody>
               {loans.map((loan) => (
-                <tr key={loan.id} className="border-b border-gray-100 hover:bg-gray-50">
+                <tr key={loan.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50">
                   <td className="py-2 px-3"><input type="checkbox" checked={selected.has(loan.loanNo)} onChange={() => toggle(loan.loanNo)} /></td>
                   <td className="py-2 px-3 font-medium">{loan.loanNo}</td>
                   <td className="py-2 px-3">{loan.borrowerName}</td>

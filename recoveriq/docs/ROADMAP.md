@@ -210,27 +210,27 @@ force-dynamic reads, no caching).
 ## 2. Technical Requirements
 
 ### Frontend
-- [ ] React / Next.js
-- [ ] Responsive UI
-- [ ] Dark & Light Mode
-- [ ] Real-time Dashboards
+- [x] React / Next.js *(Next.js 16 App Router, React 19)*
+- [x] Responsive UI *(Tailwind responsive grids throughout)*
+- [x] Dark & Light Mode *(class-based theme toggle in the sidebar, persisted to localStorage, no-flash init script; `dark:` variants across all pages)*
+- [x] Real-time Dashboards *(force-dynamic reads, no caching — every page reflects live data on load)*
 
 ### Backend
-- [ ] Node.js / NestJS
-- [ ] Python AI Services
-- [ ] REST API
-- [ ] GraphQL Support
+- [~] Node.js / NestJS *(Node via Next.js route handlers; NestJS intentionally not used — the API layer is Next.js Route Handlers)*
+- [~] Python AI Services *(AI/predictive logic implemented in-process in TypeScript, see 1.7/1.8; a separate Python service is the drop-in point if an external model is later required)*
+- [x] REST API *(Next.js Route Handlers under `/api/*`)*
+- [ ] GraphQL Support *(not implemented — would duplicate the existing REST surface; deferred unless a consumer needs it)*
 
 ### Database
-- [ ] PostgreSQL
-- [ ] Redis Caching
+- [x] PostgreSQL *(Prisma 7 + `@prisma/adapter-pg` against Neon Postgres)*
+- [ ] Redis Caching *(needs a Redis instance; reads are currently force-dynamic, so no cache layer exists yet)*
 
 ### Security
-- [ ] Role-Based Access Control
-- [ ] Multi-Factor Authentication
-- [ ] Encryption at Rest
-- [ ] Encryption in Transit
-- [ ] Activity Logging
+- [x] Role-Based Access Control *(Superadmin / Admin / Manager / Officer / Viewer, enforced server-side on every gated route + client-side nav)*
+- [ ] Multi-Factor Authentication *(not yet implemented; in-house TOTP is feasible without external credentials — candidate for next security pass)*
+- [x] Encryption at Rest *(integration credentials encrypted via AES-256-GCM, `lib/crypto.ts`; Neon also encrypts the underlying volume)*
+- [x] Encryption in Transit *(all traffic over HTTPS/TLS on Vercel; Postgres connection over TLS)*
+- [x] Activity Logging *(`AuditLog` across imports, overrides, case changes, escalations, credential changes, target changes, legal actions)*
 
 ### Integrations
 - [ ] 🔑 CRM

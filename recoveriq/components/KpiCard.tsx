@@ -18,7 +18,7 @@ const accentClasses = {
 const trendColors = {
   up: 'text-green-600',
   down: 'text-red-600',
-  neutral: 'text-gray-500',
+  neutral: 'text-gray-500 dark:text-gray-400',
 }
 
 export function KpiCard({
@@ -31,14 +31,14 @@ export function KpiCard({
 }: KpiCardProps) {
   return (
     <div
-      className={`bg-white rounded-xl border-l-4 ${accentClasses[accent]} p-5 shadow-sm`}
+      className={`bg-white dark:bg-gray-900 rounded-xl border-l-4 ${accentClasses[accent]} p-5 shadow-sm`}
     >
-      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
         {title}
       </p>
-      <p className="text-2xl font-bold text-gray-900 leading-none">{value}</p>
+      <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 leading-none">{value}</p>
       {subtitle && (
-        <p className="text-xs text-gray-500 mt-1">{subtitle}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{subtitle}</p>
       )}
       {trend && trendLabel && (
         <p className={`text-xs font-medium mt-2 ${trendColors[trend]}`}>

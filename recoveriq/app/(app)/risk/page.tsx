@@ -50,8 +50,8 @@ export default function RiskPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Risk Scoring & Recovery Prediction</h1>
-        <p className="text-sm text-gray-500 mt-0.5">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Risk Scoring & Recovery Prediction</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
           In-house rules-based risk model + heuristic recovery strategy recommendations.
           Replace with an external model/credit-bureau API once credentials are supplied.
         </p>
@@ -59,9 +59,9 @@ export default function RiskPage() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {(['Critical', 'High', 'Medium', 'Low'] as RiskBand[]).map((b) => (
-          <div key={b} className="bg-white rounded-xl border border-gray-200 p-4">
-            <p className="text-xs text-gray-500">{b} risk</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{distribution[b]}</p>
+          <div key={b} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-xs text-gray-500 dark:text-gray-400">{b} risk</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{distribution[b]}</p>
           </div>
         ))}
       </div>
@@ -72,7 +72,7 @@ export default function RiskPage() {
             key={b}
             onClick={() => setBand(b)}
             className={`text-sm px-3 py-1.5 rounded-full font-medium ${
-              band === b ? 'bg-blue-700 text-white' : 'bg-white border border-gray-300 text-gray-600'
+              band === b ? 'bg-blue-700 text-white' : 'bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300'
             }`}
           >
             {b === 'all' ? 'All' : b}
@@ -80,15 +80,15 @@ export default function RiskPage() {
         ))}
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         {loading ? (
-          <p className="text-sm text-gray-500 p-6">Loading…</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 p-6">Loading…</p>
         ) : rows.length === 0 ? (
-          <p className="text-sm text-gray-500 p-6">No loans in this band.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 p-6">No loans in this band.</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr className="text-left text-gray-500">
+            <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+              <tr className="text-left text-gray-500 dark:text-gray-400">
                 <th className="py-2 px-3">Loan No</th>
                 <th className="py-2 px-3">Borrower</th>
                 <th className="py-2 px-3">Outstanding</th>
@@ -100,7 +100,7 @@ export default function RiskPage() {
             </thead>
             <tbody>
               {rows.map((r) => (
-                <tr key={r.loanNo} className="border-b border-gray-100 hover:bg-gray-50">
+                <tr key={r.loanNo} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50">
                   <td className="py-2 px-3 font-medium">{r.loanNo}</td>
                   <td className="py-2 px-3">
                     {r.borrowerName}
@@ -114,7 +114,7 @@ export default function RiskPage() {
                     <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${BAND_COLORS[r.band]}`}>{r.band}</span>
                   </td>
                   <td className="py-2 px-3">{r.paymentProbability}%</td>
-                  <td className="py-2 px-3 text-gray-600">{r.recommendedStrategy}</td>
+                  <td className="py-2 px-3 text-gray-600 dark:text-gray-300">{r.recommendedStrategy}</td>
                 </tr>
               ))}
             </tbody>

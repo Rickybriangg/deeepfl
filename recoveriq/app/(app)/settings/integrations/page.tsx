@@ -39,8 +39,8 @@ export default function IntegrationsSettingsPage() {
 
   if (role && role !== 'Superadmin') {
     return (
-      <div className="bg-white rounded-xl border border-dashed border-gray-300 p-16 text-center">
-        <p className="text-gray-500 text-sm">This page is restricted to Superadmin.</p>
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-dashed border-gray-300 dark:border-gray-600 p-16 text-center">
+        <p className="text-gray-500 dark:text-gray-400 text-sm">This page is restricted to Superadmin.</p>
       </div>
     )
   }
@@ -72,22 +72,22 @@ export default function IntegrationsSettingsPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Settings — Integrations</h1>
-        <p className="text-sm text-gray-500 mt-0.5">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Settings — Integrations</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
           Superadmin only. Credentials are encrypted at rest and never shown back in plaintext.
         </p>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 divide-y divide-gray-100 dark:divide-gray-800">
         {loading ? (
-          <p className="text-sm text-gray-500 p-6">Loading…</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 p-6">Loading…</p>
         ) : (
           integrations.map((i) => (
             <div key={i.key} className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-gray-900">{i.label}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">
+                  <p className="font-medium text-gray-900 dark:text-gray-100">{i.label}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                     {i.configured ? (
                       <span className="text-green-700">
                         Configured
@@ -103,7 +103,7 @@ export default function IntegrationsSettingsPage() {
                     <button
                       onClick={() => test(i.key)}
                       disabled={busyKey === i.key}
-                      className="text-sm border border-gray-300 hover:bg-gray-50 disabled:opacity-50 text-gray-700 px-3 py-1.5 rounded-lg"
+                      className="text-sm border border-gray-300 dark:border-gray-600 hover:bg-gray-50 disabled:opacity-50 text-gray-700 dark:text-gray-200 px-3 py-1.5 rounded-lg"
                     >
                       Test connection
                     </button>
@@ -121,15 +121,15 @@ export default function IntegrationsSettingsPage() {
               </div>
 
               {open === i.key && (
-                <div className="mt-4 space-y-2 border-t border-gray-100 pt-4">
+                <div className="mt-4 space-y-2 border-t border-gray-100 dark:border-gray-800 pt-4">
                   {i.fields.map((f) => (
                     <div key={f.key}>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">{f.label}</label>
+                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">{f.label}</label>
                       <input
                         type="password"
                         value={values[f.key] ?? ''}
                         onChange={(e) => setValues((v) => ({ ...v, [f.key]: e.target.value }))}
-                        className="w-full text-sm border border-gray-300 rounded-lg px-2 py-1.5"
+                        className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1.5"
                       />
                     </div>
                   ))}

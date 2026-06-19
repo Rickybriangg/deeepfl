@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import Decimal from 'decimal.js'
-import { isNPL } from '@/lib/recovery-logic'
+import { isNPL, computeDelinquencyStage } from '@/lib/recovery-logic'
 import { getCountyName } from '@/lib/counties'
 
 // Reads must always reflect the latest imported data (never a cached empty
@@ -46,6 +46,7 @@ export async function GET(req: NextRequest) {
     { count: number; outstanding: Decimal; disbursed: Decimal; paid: Decimal }
   > = {}
   const arrearsBreakdown: Record<string, { count: number; outstanding: Decimal }> = {}
+  const delinquencyBreakdown: Record<string, { count: number; outstanding: Decimal }> = {}
   const countyBreakdown: Record<string, { count: number; outstanding: Decimal }> = {}
   let dormant365 = 0
   let creditBalances = 0
@@ -99,6 +100,14 @@ export async function GET(req: NextRequest) {
     arrearsBreakdown[bucketKey].outstanding =
       arrearsBreakdown[bucketKey].outstanding.plus(outstanding)
 
+    const stageKey = computeDelinquencyStage(loan.daysInArrears, {
+      dueDate: loan.expectedCompletionDate,
+    })
+    delinquencyBreakdown[stageKey] ??= { count: 0, outstanding: new Decimal(0) }
+    delinquencyBreakdown[stageKey].count++
+    delinquencyBreakdown[stageKey].outstanding =
+      delinquencyBreakdown[stageKey].outstanding.plus(outstanding)
+
     if (loan.countyCode) {
       const countyName = getCountyName(loan.countyCode)
       countyBreakdown[countyName] ??= { count: 0, outstanding: new Decimal(0) }
@@ -142,6 +151,7 @@ export async function GET(req: NextRequest) {
     tierBreakdown: toObj(tierBreakdown),
     classificationBreakdown: toObj(classBreakdown),
     arrearsBreakdown: toObj(arrearsBreakdown),
+    delinquencyBreakdown: toObj(delinquencyBreakdown),
     countyBreakdown: toObj(countyBreakdown),
     productBreakdown: Object.entries(productBreakdown).map(([product, v]) => ({
       product,

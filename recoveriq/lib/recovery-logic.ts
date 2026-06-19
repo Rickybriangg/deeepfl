@@ -10,6 +10,62 @@ export type ArrearsBucket =
 
 export type RecoveryTier = 'Curable' | 'At-risk' | 'Doubtful' | 'Impaired'
 
+export type DelinquencyStage =
+  | 'Current'
+  | 'Due Today'
+  | '1-7 Days Overdue'
+  | '8-30 Days Overdue'
+  | '31-60 Days Overdue'
+  | '61-90 Days Overdue'
+  | '91-180 Days Overdue'
+  | 'Defaulted'
+
+// Ordered for display (least to most severe).
+export const DELINQUENCY_STAGES: DelinquencyStage[] = [
+  'Current',
+  'Due Today',
+  '1-7 Days Overdue',
+  '8-30 Days Overdue',
+  '31-60 Days Overdue',
+  '61-90 Days Overdue',
+  '91-180 Days Overdue',
+  'Defaulted',
+]
+
+function isSameDay(a: Date, b: Date): boolean {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  )
+}
+
+/**
+ * Classifies a loan's delinquency stage from its days in arrears.
+ * "Due Today" is only assigned when a non-overdue loan has a due date that
+ * falls on `asOf` (best-effort, since the source data has no per-installment
+ * schedule yet); otherwise a non-overdue loan is "Current".
+ */
+export function computeDelinquencyStage(
+  daysInArrears: number,
+  opts?: { dueDate?: Date | null; asOf?: Date }
+): DelinquencyStage {
+  const days = daysInArrears ?? 0
+  if (days <= 0) {
+    const dueDate = opts?.dueDate
+    if (dueDate && isSameDay(dueDate, opts?.asOf ?? new Date())) {
+      return 'Due Today'
+    }
+    return 'Current'
+  }
+  if (days <= 7) return '1-7 Days Overdue'
+  if (days <= 30) return '8-30 Days Overdue'
+  if (days <= 60) return '31-60 Days Overdue'
+  if (days <= 90) return '61-90 Days Overdue'
+  if (days <= 180) return '91-180 Days Overdue'
+  return 'Defaulted'
+}
+
 export type LoanClassification =
   | 'Normal'
   | 'Watch'

@@ -3,6 +3,9 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { KpiCard } from '@/components/KpiCard'
 import { formatKES, formatKESCompact, formatPercent, formatNumber } from '@/lib/format'
+import { DELINQUENCY_STAGES } from '@/lib/recovery-logic'
+
+type Breakdown = Record<string, { count: number; outstanding: string }>
 
 interface Analytics {
   totalOutstanding: string
@@ -11,6 +14,19 @@ interface Analytics {
   recoveryRate: number | null
   nplRatio: number | null
   par30: number | null
+  delinquencyBreakdown?: Breakdown
+}
+
+// Color accent per delinquency stage (least → most severe).
+const STAGE_COLORS: Record<string, string> = {
+  Current: 'bg-green-100 text-green-700',
+  'Due Today': 'bg-sky-100 text-sky-700',
+  '1-7 Days Overdue': 'bg-yellow-100 text-yellow-700',
+  '8-30 Days Overdue': 'bg-amber-100 text-amber-700',
+  '31-60 Days Overdue': 'bg-orange-100 text-orange-700',
+  '61-90 Days Overdue': 'bg-orange-200 text-orange-800',
+  '91-180 Days Overdue': 'bg-red-100 text-red-700',
+  Defaulted: 'bg-red-200 text-red-800',
 }
 
 export default function DashboardPage() {
@@ -89,16 +105,65 @@ export default function DashboardPage() {
           </Link>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <p className="text-sm text-gray-600">
-            Total outstanding: {formatKES(data!.totalOutstanding)}. See the{' '}
-            <Link href="/portfolio" className="text-blue-700 font-medium">
-              Portfolio
-            </Link>{' '}
-            page for full breakdowns and charts.
-          </p>
+        <div className="space-y-6">
+          <DelinquencySection breakdown={data!.delinquencyBreakdown} />
+
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <p className="text-sm text-gray-600">
+              Total outstanding: {formatKES(data!.totalOutstanding)}. See the{' '}
+              <Link href="/portfolio" className="text-blue-700 font-medium">
+                Portfolio
+              </Link>{' '}
+              page for full breakdowns and charts.
+            </p>
+          </div>
         </div>
       )}
+    </div>
+  )
+}
+
+function DelinquencySection({ breakdown }: { breakdown?: Breakdown }) {
+  if (!breakdown) return null
+  const totalCount = DELINQUENCY_STAGES.reduce(
+    (sum, s) => sum + (breakdown[s]?.count ?? 0),
+    0
+  )
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <h2 className="text-base font-semibold text-gray-900 mb-1">
+        Delinquency Staging
+      </h2>
+      <p className="text-xs text-gray-500 mb-4">
+        Accounts classified by days overdue
+      </p>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {DELINQUENCY_STAGES.map((stage) => {
+          const entry = breakdown[stage] ?? { count: 0, outstanding: '0' }
+          const pct = totalCount > 0 ? (entry.count / totalCount) * 100 : 0
+          return (
+            <div
+              key={stage}
+              className="rounded-lg border border-gray-100 p-3 flex flex-col gap-1"
+            >
+              <span
+                className={`self-start text-[11px] font-medium px-2 py-0.5 rounded-full ${
+                  STAGE_COLORS[stage] ?? 'bg-gray-100 text-gray-600'
+                }`}
+              >
+                {stage}
+              </span>
+              <span className="text-xl font-bold text-gray-900">
+                {formatNumber(entry.count)}
+              </span>
+              <span className="text-xs text-gray-500">
+                {pct.toFixed(1)}% · {formatKESCompact(entry.outstanding)}
+              </span>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }

@@ -33,20 +33,20 @@ Interactive dashboard displaying:
 
 ### 1.2 Automated Due Monitoring
 System must automatically:
-- [ ] **Due Date Tracking** — monitor loan due dates continuously
-- [ ] Track upcoming installments
-- [ ] Detect overdue payments instantly
-- [ ] Classify delinquency stages automatically
+- [~] **Due Date Tracking** — monitor loan due dates continuously *(uses expectedCompletionDate; per-installment schedule pending)*
+- [ ] Track upcoming installments *(needs installment schedule model)*
+- [x] Detect overdue payments instantly *(via daysInArrears)*
+- [x] Classify delinquency stages automatically *(`computeDelinquencyStage`)*
 
-Delinquency categories:
-- [ ] Current
-- [ ] Due Today
-- [ ] 1–7 Days Overdue
-- [ ] 8–30 Days Overdue
-- [ ] 31–60 Days Overdue
-- [ ] 61–90 Days Overdue
-- [ ] 91–180 Days Overdue
-- [ ] Defaulted
+Delinquency categories *(computed in `lib/recovery-logic.ts`, surfaced on Dashboard)*:
+- [x] Current
+- [~] Due Today *(best-effort via due date; full support needs installment schedule)*
+- [x] 1–7 Days Overdue
+- [x] 8–30 Days Overdue
+- [x] 31–60 Days Overdue
+- [x] 61–90 Days Overdue
+- [x] 91–180 Days Overdue
+- [x] Defaulted
 
 ### 1.3 Automated Reminder Engine
 Send reminders through communication channels:

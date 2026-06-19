@@ -99,18 +99,23 @@ Allow collectors to:
 ### 1.7 Customer Risk Scoring
 AI-powered risk scoring using: repayment history, loan utilization, missed
 payments, customer income, credit score, previous defaults.
-- [ ] Scoring model / engine
-- [ ] Risk bands: Low / Medium / High / Critical
-- [ ] 🔑 External credit score provider (if used)
+- [x] Scoring model / engine *(`computeRiskScore` in `lib/recovery-logic.ts` — rules-based 0–100 score from days in arrears, classification, principal-repaid ratio, dormancy, and broken promises; surfaced on the new `/risk` page + `/api/risk`)*
+- [x] Risk bands: Low / Medium / High / Critical *(`bandForScore`: <25 / 25–49 / 50–74 / 75+)*
+- [ ] 🔑 External credit score provider (if used) *(scaffolded in Settings → Integrations as "Credit score provider"; the in-house engine runs today with no external call — swap in the bureau score once credentials are entered)*
 
 ### 1.8 AI Predictive Recovery Engine
 Predictive analytics to:
-- [ ] Predict likelihood of default
-- [ ] Predict payment probability
-- [ ] Recommend best collection strategy
-- [ ] Prioritize accounts by recovery potential
-- [ ] Forecast monthly collections
-- [ ] 🔑 AI service provider / model API (if external)
+- [x] Predict likelihood of default *(risk score / band serves as the default-likelihood proxy)*
+- [x] Predict payment probability *(`predictRecovery` — inverse of risk score, floored/capped 5–95%)*
+- [x] Recommend best collection strategy *(`predictRecovery.recommendedStrategy`, per risk band)*
+- [x] Prioritize accounts by recovery potential *(`priority` = risk × outstanding-balance weight; `/risk` page sorts by it)*
+- [~] Forecast monthly collections *(per-account payment probability exists; portfolio-level monthly forecast roll-up not yet aggregated)*
+- [ ] 🔑 AI service provider / model API (if external) *(scaffolded in Settings → Integrations as "AI / Predictive service"; the heuristic engine runs today with no external call — swap in a trained model once credentials are entered)*
+
+**Note:** 1.7/1.8 are implemented as a deliberately transparent rules-based /
+heuristic engine (no black-box external model), so every score comes with its
+contributing `factors`. This is production-usable now and is the drop-in
+point for a real ML model later.
 
 ### 1.9 Field Recovery Module
 Recovery agents (mobile app) should have:

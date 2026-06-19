@@ -8,6 +8,9 @@ import {
   isNPL,
   isValidLoanNo,
   trimName,
+  bandForScore,
+  computeRiskScore,
+  predictRecovery,
 } from '@/lib/recovery-logic'
 
 describe('computeArrearsBucket', () => {
@@ -161,5 +164,72 @@ describe('trimName', () => {
   it('handles null/undefined', () => {
     expect(trimName(null)).toBe('')
     expect(trimName(undefined)).toBe('')
+  })
+})
+
+describe('bandForScore', () => {
+  it('maps score ranges to bands', () => {
+    expect(bandForScore(0)).toBe('Low')
+    expect(bandForScore(24)).toBe('Low')
+    expect(bandForScore(25)).toBe('Medium')
+    expect(bandForScore(49)).toBe('Medium')
+    expect(bandForScore(50)).toBe('High')
+    expect(bandForScore(74)).toBe('High')
+    expect(bandForScore(75)).toBe('Critical')
+    expect(bandForScore(100)).toBe('Critical')
+  })
+})
+
+describe('computeRiskScore', () => {
+  it('scores a healthy current loan as Low risk', () => {
+    const r = computeRiskScore({
+      daysInArrears: 0,
+      classification: 'Normal',
+      dormancyDays: 10,
+      outstandingBalance: '10000',
+      disbursedAmount: '100000',
+    })
+    expect(r.band).toBe('Low')
+    expect(r.score).toBeLessThan(25)
+  })
+
+  it('scores a deeply delinquent Loss loan as Critical', () => {
+    const r = computeRiskScore({
+      daysInArrears: 400,
+      classification: 'Loss',
+      dormancyDays: 300,
+      outstandingBalance: '95000',
+      disbursedAmount: '100000',
+      brokenPromises: 2,
+    })
+    expect(r.band).toBe('Critical')
+    expect(r.score).toBeGreaterThanOrEqual(75)
+    expect(r.factors.length).toBeGreaterThan(0)
+  })
+
+  it('caps the score at 100', () => {
+    const r = computeRiskScore({
+      daysInArrears: 9999,
+      classification: 'Loss',
+      dormancyDays: 9999,
+      outstandingBalance: '100000',
+      disbursedAmount: '100000',
+      brokenPromises: 99,
+    })
+    expect(r.score).toBeLessThanOrEqual(100)
+  })
+})
+
+describe('predictRecovery', () => {
+  it('inverts risk into payment probability', () => {
+    const low = predictRecovery({ score: 10, band: 'Low', factors: [] }, '10000')
+    const high = predictRecovery({ score: 90, band: 'Critical', factors: [] }, '10000')
+    expect(low.paymentProbability).toBeGreaterThan(high.paymentProbability)
+  })
+
+  it('recommends legal escalation for Critical band', () => {
+    const p = predictRecovery({ score: 90, band: 'Critical', factors: [] }, '2000000')
+    expect(p.recommendedStrategy).toMatch(/legal/i)
+    expect(p.priority).toBeGreaterThan(50)
   })
 })

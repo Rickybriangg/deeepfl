@@ -126,15 +126,20 @@ point for a real ML model later.
 
 ### 1.9 Field Recovery Module
 Recovery agents (mobile app) should have:
-- [ ] Mobile Application
-- [ ] 🔑 GPS Tracking (maps provider)
-- [ ] 🔑 Route Optimization (maps/routing API)
-- [ ] Visit Scheduling
-- [ ] Customer Check-in
-- [ ] Photo Capture
-- [ ] Document Upload
-- [ ] Digital Signature Capture
-- [ ] Offline Mode
+- [x] Mobile Application *(installable PWA — `app/manifest.ts`, standalone display, home-screen icon; the responsive UI already works on phones)*
+- [ ] 🔑 GPS Tracking (maps provider) *(maps credentials scaffolded in Settings → Integrations; browser geolocation can feed it without a maps key, but live map display needs the provider)*
+- [ ] 🔑 Route Optimization (maps/routing API) *(needs the maps/routing provider)*
+- [x] Visit Scheduling *(see 1.5 — Field visit action with a scheduled date)*
+- [ ] Customer Check-in *(needs file/photo storage infra — see below)*
+- [ ] Photo Capture *(needs blob storage; none provisioned yet)*
+- [ ] Document Upload *(needs blob storage)*
+- [ ] Digital Signature Capture *(needs blob storage)*
+- [~] Offline Mode *(network-first service worker with an offline fallback page — `public/sw.js`; full offline data entry/sync needs a local store + sync engine, not yet built)*
+
+> The remaining items (check-in photos, document/signature upload) all depend
+> on a blob-storage provider (e.g. S3 / Vercel Blob) that hasn't been
+> provisioned. GPS/routing depend on a maps API key. Visit Scheduling and the
+> installable mobile app + basic offline shell are done.
 
 ### 1.10 Legal Recovery Management
 - [x] Demand Letters *(`LegalCase.type = 'Demand Letter'`)*

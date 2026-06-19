@@ -6,6 +6,11 @@ import Decimal from 'decimal.js'
 import { isNPL } from '@/lib/recovery-logic'
 import { getCountyName } from '@/lib/counties'
 
+// Reads must always reflect the latest imported data (never a cached empty
+// response), and the full-portfolio aggregation can be heavy on large books.
+export const dynamic = 'force-dynamic'
+export const maxDuration = 60
+
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

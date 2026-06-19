@@ -1,9 +1,15 @@
 'use client'
 
 const REPORTS = [
-  { type: 'loans', label: 'Full Loan Book Export', desc: 'Every loan account with derived fields' },
-  { type: 'aging', label: 'CBK-style Aging & Classification Report', desc: 'Arrears buckets with account counts and outstanding totals' },
-  { type: 'officer-performance', label: 'Officer Performance Report', desc: 'Payments logged and amounts recovered by officer' },
+  { type: 'loans', label: 'Full Loan Book Export (Recovery Report)', desc: 'Every loan account with derived fields' },
+  { type: 'daily-collection', label: 'Daily Collection Report', desc: 'Payments logged and amounts collected, grouped by day' },
+  { type: 'officer-performance', label: 'Collector Performance Report', desc: 'Payments logged and amounts recovered by officer' },
+  { type: 'overdue-analysis', label: 'Overdue Analysis', desc: 'Every account currently in arrears' },
+  { type: 'aging', label: 'Aging Report (CBK-style)', desc: 'Arrears buckets with account counts and outstanding totals' },
+  { type: 'default-report', label: 'Default Report', desc: 'Accounts more than 180 days overdue' },
+  { type: 'portfolio-risk', label: 'Portfolio Risk Report', desc: 'Outstanding and account counts by recovery tier' },
+  { type: 'recovery-trend', label: 'Recovery Trend Analysis', desc: 'Daily portfolio snapshots: outstanding, overdue, recovery rate, PAR, default rate' },
+  { type: 'branch-comparison', label: 'Branch Comparison Report', desc: 'Outstanding and account counts by branch' },
 ]
 
 export default function ReportsPage() {
@@ -31,6 +37,12 @@ export default function ReportsPage() {
                 className="text-sm border border-gray-300 hover:bg-gray-50 text-gray-700 px-3 py-1.5 rounded-lg"
               >
                 Export Excel
+              </a>
+              <a
+                href={`/api/reports/export?type=${r.type}&format=pdf`}
+                className="text-sm border border-gray-300 hover:bg-gray-50 text-gray-700 px-3 py-1.5 rounded-lg"
+              >
+                Export PDF
               </a>
             </div>
           </div>

@@ -142,20 +142,20 @@ Automatically:
 
 ### 1.12 Reports & Analytics
 Generate:
-- [ ] Recovery Reports
-- [ ] Daily Collection Report
-- [ ] Collector Performance Report
-- [ ] Overdue Analysis
-- [ ] Aging Report
-- [ ] Default Report
-- [ ] Portfolio Risk Report
-- [ ] Recovery Trend Analysis
-- [ ] Branch Comparison Report
+- [x] Recovery Reports *(Full Loan Book Export)*
+- [x] Daily Collection Report
+- [x] Collector Performance Report
+- [x] Overdue Analysis
+- [x] Aging Report
+- [x] Default Report
+- [x] Portfolio Risk Report
+- [x] Recovery Trend Analysis
+- [x] Branch Comparison Report
 
 Export formats:
-- [ ] PDF
-- [ ] Excel
-- [ ] CSV
+- [x] PDF *(jsPDF + autotable, generic across all report types)*
+- [x] Excel
+- [x] CSV
 
 ### 1.13 Automation Rules Engine
 Administrators configure (without modifying code):

@@ -66,6 +66,10 @@ export async function GET(req: NextRequest) {
     filename = 'officer_performance_report'
   }
 
+  if (format === 'json') {
+    return NextResponse.json(rows)
+  }
+
   const ws = XLSX.utils.json_to_sheet(rows)
 
   if (format === 'xlsx') {

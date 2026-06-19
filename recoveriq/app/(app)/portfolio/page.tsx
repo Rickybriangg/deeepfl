@@ -43,12 +43,30 @@ const PRODUCTS = [
 const CLASSIFICATIONS = ['Normal', 'Watch', 'Substandard', 'Doubtful', 'Loss']
 const TIERS = ['Curable', 'At-risk', 'Doubtful', 'Impaired']
 
+interface OfficerRow {
+  Officer: string
+  PaymentsLogged: number
+  TotalRecoveredKES: string
+}
+
 export default function PortfolioPage() {
   const [data, setData] = useState<Analytics | null>(null)
+  const [officers, setOfficers] = useState<OfficerRow[]>([])
   const [product, setProduct] = useState('')
   const [classification, setClassification] = useState('')
   const [tier, setTier] = useState('')
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/reports/export?type=officer-performance&format=json')
+      .then((r) => r.json())
+      .then((rows: OfficerRow[]) =>
+        setOfficers(
+          [...rows].sort((a, b) => Number(b.TotalRecoveredKES) - Number(a.TotalRecoveredKES))
+        )
+      )
+      .catch(() => setOfficers([]))
+  }, [])
 
   useEffect(() => {
     setLoading(true)
@@ -184,6 +202,35 @@ export default function PortfolioPage() {
                 <Bar dataKey="outstanding" fill="#7c3aed" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
+          </ChartCard>
+
+          <ChartCard title="Collector Performance Ranking" full>
+            {officers.length === 0 ? (
+              <p className="text-sm text-gray-500">No recovery actions logged yet.</p>
+            ) : (
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-gray-500 border-b border-gray-100">
+                    <th className="py-2 font-medium">#</th>
+                    <th className="py-2 font-medium">Officer</th>
+                    <th className="py-2 font-medium text-right">Payments Logged</th>
+                    <th className="py-2 font-medium text-right">Total Recovered</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {officers.map((o, i) => (
+                    <tr key={o.Officer} className="border-b border-gray-50">
+                      <td className="py-2 text-gray-400">{i + 1}</td>
+                      <td className="py-2 text-gray-900">{o.Officer}</td>
+                      <td className="py-2 text-right">{o.PaymentsLogged}</td>
+                      <td className="py-2 text-right font-medium">
+                        {formatKESCompact(o.TotalRecoveredKES)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </ChartCard>
         </div>
       )}

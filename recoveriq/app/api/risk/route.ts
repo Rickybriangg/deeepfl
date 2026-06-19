@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import Decimal from 'decimal.js'
 import { computeRiskScore, predictRecovery, type RiskBand } from '@/lib/recovery-logic'
 
 export const dynamic = 'force-dynamic'
@@ -58,5 +59,18 @@ export async function GET(req: NextRequest) {
   const distribution: Record<RiskBand, number> = { Low: 0, Medium: 0, High: 0, Critical: 0 }
   for (const s of scored) distribution[s.band]++
 
-  return NextResponse.json({ distribution, rows: filtered.slice(0, 200) })
+  // Portfolio-level monthly collections forecast (roadmap 1.8): each loan's
+  // outstanding balance weighted by its predicted payment probability,
+  // summed across the book — a rough expected-collections-this-month figure.
+  const forecastMonthlyCollections = scored
+    .reduce((sum, s) => {
+      try {
+        return sum.plus(new Decimal(s.outstandingBalance).times(s.paymentProbability / 100))
+      } catch {
+        return sum
+      }
+    }, new Decimal(0))
+    .toFixed(2)
+
+  return NextResponse.json({ distribution, forecastMonthlyCollections, rows: filtered.slice(0, 200) })
 }

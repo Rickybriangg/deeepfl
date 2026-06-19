@@ -31,6 +31,7 @@ const BANDS: (RiskBand | 'all')[] = ['all', 'Critical', 'High', 'Medium', 'Low']
 export default function RiskPage() {
   const [rows, setRows] = useState<RiskRow[]>([])
   const [distribution, setDistribution] = useState<Record<RiskBand, number>>({ Low: 0, Medium: 0, High: 0, Critical: 0 })
+  const [forecast, setForecast] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [band, setBand] = useState<RiskBand | 'all'>('all')
 
@@ -42,6 +43,7 @@ export default function RiskPage() {
       .then((d) => {
         setRows(d.rows ?? [])
         if (d.distribution) setDistribution(d.distribution)
+        if (d.forecastMonthlyCollections) setForecast(d.forecastMonthlyCollections)
         setLoading(false)
       })
       .catch(() => setLoading(false))
@@ -57,13 +59,19 @@ export default function RiskPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         {(['Critical', 'High', 'Medium', 'Low'] as RiskBand[]).map((b) => (
           <div key={b} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
             <p className="text-xs text-gray-500 dark:text-gray-400">{b} risk</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{distribution[b]}</p>
           </div>
         ))}
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400">Forecast collections (this period)</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+            {forecast ? formatKES(forecast) : '—'}
+          </p>
+        </div>
       </div>
 
       <div className="flex gap-2 mb-4">

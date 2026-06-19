@@ -116,7 +116,7 @@ Predictive analytics to:
 - [x] Predict payment probability *(`predictRecovery` — inverse of risk score, floored/capped 5–95%)*
 - [x] Recommend best collection strategy *(`predictRecovery.recommendedStrategy`, per risk band)*
 - [x] Prioritize accounts by recovery potential *(`priority` = risk × outstanding-balance weight; `/risk` page sorts by it)*
-- [~] Forecast monthly collections *(per-account payment probability exists; portfolio-level monthly forecast roll-up not yet aggregated)*
+- [x] Forecast monthly collections *(`/api/risk` now sums each loan's outstanding balance weighted by payment probability into a portfolio-level `forecastMonthlyCollections` figure, shown as a KPI card on `/risk`)*
 - [ ] 🔑 AI service provider / model API (if external) *(scaffolded in Settings → Integrations as "AI / Predictive service"; the heuristic engine runs today with no external call — swap in a trained model once credentials are entered)*
 
 **Note:** 1.7/1.8 are implemented as a deliberately transparent rules-based /

@@ -15,6 +15,9 @@ interface Analytics {
   nplRatio: number | null
   par30: number | null
   delinquencyBreakdown?: Breakdown
+  dueToday?: number
+  dueThisWeek?: number
+  dueThisMonth?: number
 }
 
 // Color accent per delinquency stage (least → most severe).
@@ -88,6 +91,24 @@ export default function DashboardPage() {
           value={data ? formatNumber(data.activeCases) : '—'}
           subtitle="In recovery"
           accent="blue"
+        />
+        <KpiCard
+          title="Due Today"
+          value={data ? formatNumber(data.dueToday ?? 0) : '—'}
+          subtitle="Loans"
+          accent="amber"
+        />
+        <KpiCard
+          title="Due This Week"
+          value={data ? formatNumber(data.dueThisWeek ?? 0) : '—'}
+          subtitle="Loans"
+          accent="amber"
+        />
+        <KpiCard
+          title="Due This Month"
+          value={data ? formatNumber(data.dueThisMonth ?? 0) : '—'}
+          subtitle="Loans"
+          accent="amber"
         />
       </div>
 

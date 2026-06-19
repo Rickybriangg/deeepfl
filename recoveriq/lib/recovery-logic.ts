@@ -32,7 +32,7 @@ export const DELINQUENCY_STAGES: DelinquencyStage[] = [
   'Defaulted',
 ]
 
-function isSameDay(a: Date, b: Date): boolean {
+export function isSameDay(a: Date, b: Date): boolean {
   return (
     a.getFullYear() === b.getFullYear() &&
     a.getMonth() === b.getMonth() &&

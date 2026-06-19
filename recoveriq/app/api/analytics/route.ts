@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import Decimal from 'decimal.js'
-import { isNPL, computeDelinquencyStage } from '@/lib/recovery-logic'
+import { isNPL, computeDelinquencyStage, isSameDay } from '@/lib/recovery-logic'
 import { getCountyName } from '@/lib/counties'
 
 // Reads must always reflect the latest imported data (never a cached empty
@@ -50,6 +50,14 @@ export async function GET(req: NextRequest) {
   const countyBreakdown: Record<string, { count: number; outstanding: Decimal }> = {}
   let dormant365 = 0
   let creditBalances = 0
+  let dueToday = 0
+  let dueThisWeek = 0
+  let dueThisMonth = 0
+
+  const now = new Date()
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const endOfWeek = new Date(startOfToday.getTime() + 7 * 24 * 60 * 60 * 1000)
+  const endOfMonth = new Date(startOfToday.getTime() + 30 * 24 * 60 * 60 * 1000)
 
   for (const loan of loans) {
     const outstanding = new Decimal(loan.outstandingBalance)
@@ -118,6 +126,14 @@ export async function GET(req: NextRequest) {
 
     if ((loan.dormancyDays ?? 0) >= 365) dormant365++
     if (loan.isCreditBalance) creditBalances++
+
+    // "Due" KPIs only apply to loans not yet overdue (daysInArrears <= 0).
+    if (loan.daysInArrears <= 0 && loan.expectedCompletionDate) {
+      const due = loan.expectedCompletionDate
+      if (due >= startOfToday && due < endOfWeek) dueThisWeek++
+      if (due >= startOfToday && due < endOfMonth) dueThisMonth++
+      if (isSameDay(due, startOfToday)) dueToday++
+    }
   }
 
   const recoveryRate = totalDisbursed.gt(0)
@@ -148,6 +164,9 @@ export async function GET(req: NextRequest) {
     par30,
     dormant365,
     creditBalances,
+    dueToday,
+    dueThisWeek,
+    dueThisMonth,
     tierBreakdown: toObj(tierBreakdown),
     classificationBreakdown: toObj(classBreakdown),
     arrearsBreakdown: toObj(arrearsBreakdown),

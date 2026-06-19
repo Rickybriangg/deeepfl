@@ -16,13 +16,13 @@
 
 ### 1.1 Loan Portfolio Dashboard
 Interactive dashboard displaying:
-- [ ] Total Active Loans
-- [ ] Total Outstanding Balance
+- [x] Total Active Loans *(`Total Accounts` KPI)*
+- [x] Total Outstanding Balance
 - [ ] Total Overdue Amount
-- [ ] Portfolio at Risk (PAR)
-- [ ] Loans Due Today
-- [ ] Loans Due This Week
-- [ ] Loans Due This Month
+- [x] Portfolio at Risk (PAR) *(`PAR > 30` KPI)*
+- [x] Loans Due Today
+- [x] Loans Due This Week
+- [x] Loans Due This Month
 - [ ] Collection Performance
 - [ ] Recovery Rate
 - [ ] Default Rate

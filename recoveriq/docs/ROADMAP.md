@@ -125,13 +125,18 @@ Recovery agents (mobile app) should have:
 - [ ] Offline Mode
 
 ### 1.10 Legal Recovery Management
-- [ ] Demand Letters
-- [ ] Legal Notices
-- [ ] Court Cases
-- [ ] Asset Repossession
-- [ ] Recovery Documentation
-- [ ] Lawyer Assignments
-- [ ] Status & timeline tracking
+- [x] Demand Letters *(`LegalCase.type = 'Demand Letter'`)*
+- [x] Legal Notices *(`type = 'Legal Notice'`)*
+- [x] Court Cases *(`type = 'Court Case'`, with `courtName`/`hearingDate`)*
+- [x] Asset Repossession *(`type = 'Asset Repossession'`)*
+- [x] Recovery Documentation *(`notes` + `documentRef` fields; `documentRef` is a URL/filing-number reference since there is no file-storage infra yet)*
+- [x] Lawyer Assignments *(`lawyerName` field)*
+- [x] Status & timeline tracking *(`status`: Draft → Sent/Filed → In court → Resolved/Closed, plus `filingDate`/`hearingDate`/`resolutionDate`)*
+
+Implemented as a new `LegalCase` model linked to `RecoveryCase`, a
+`/legal` page (Admin/Manager/Superadmin), and `/api/legal` + `/api/legal/[id]`
+routes. Creating a legal action automatically sets the case's `status` to
+`'Legal'`.
 
 ### 1.11 Payment Integration
 Integrate with:

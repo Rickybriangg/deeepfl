@@ -65,6 +65,17 @@ const navItems: NavItem[] = [
     ),
   },
   {
+    href: '/legal',
+    label: 'Legal',
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+          d="M12 3v18m-7-9h14M5 7l-2 5h4l-2-5zm14 0l-2 5h4l-2-5zM5 19h4m6 0h4" />
+      </svg>
+    ),
+    roles: ['Admin', 'Manager', 'Superadmin'],
+  },
+  {
     href: '/notifications',
     label: 'Notifications',
     icon: (

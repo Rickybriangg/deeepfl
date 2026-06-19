@@ -165,9 +165,10 @@ model RecoveryCase {
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
-  loan    Loan             @relation(fields: [loanNo], references: [loanNo])
-  officer User?            @relation(fields: [assignedOfficerId], references: [id])
-  actions RecoveryAction[]
+  loan       Loan             @relation(fields: [loanNo], references: [loanNo])
+  officer    User?            @relation(fields: [assignedOfficerId], references: [id])
+  actions    RecoveryAction[]
+  legalCases LegalCase[]
 }
 
 model RecoveryAction {
@@ -199,6 +200,34 @@ model AutomationRule {
   action           String
   enabled          Boolean  @default(true)
   updatedAt        DateTime @updatedAt
+}
+
+// Legal Recovery Management (roadmap 1.10): demand letters, legal notices,
+// court cases and asset repossessions tracked against a RecoveryCase, with
+// lawyer assignment and status/timeline tracking. `documentRef` is a
+// free-text reference (URL or filing number) since there is no file
+// storage infra yet — "Document Upload" is scoped to that until one exists.
+model LegalCase {
+  id             String    @id @default(cuid())
+  caseId         String
+  // Demand Letter | Legal Notice | Court Case | Asset Repossession
+  type           String
+  // Draft | Sent | Filed | In court | Resolved | Closed
+  status         String    @default("Draft")
+  lawyerName     String?
+  courtName      String?
+  filingDate     DateTime?
+  hearingDate    DateTime?
+  resolutionDate DateTime?
+  notes          String?
+  documentRef    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  case RecoveryCase @relation(fields: [caseId], references: [id])
+
+  @@index([caseId])
+  @@index([status])
 }
 
 // Superadmin-only integration credentials (roadmap "Settings & Credentials").

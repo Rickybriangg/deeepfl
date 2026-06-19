@@ -30,6 +30,7 @@ export async function GET(req: NextRequest) {
     where.status = 'Promised to pay'
     where.nextActionDate = { lt: new Date() }
   }
+  if (view === 'legal') where.status = 'Legal'
 
   const cases = await prisma.recoveryCase.findMany({
     where,

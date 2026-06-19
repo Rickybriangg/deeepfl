@@ -11,6 +11,8 @@ import {
   Pie,
   Cell,
   CartesianGrid,
+  LineChart,
+  Line,
 } from 'recharts'
 import { formatKESCompact, formatPercent } from '@/lib/format'
 
@@ -25,7 +27,17 @@ interface Analytics {
   classificationBreakdown: Breakdown
   arrearsBreakdown: Breakdown
   countyBreakdown: Breakdown
+  branchBreakdown: Breakdown
   productBreakdown: { product: string; count: number; outstanding: string; recoveryRate: number | null }[]
+}
+
+interface Snapshot {
+  capturedAt: string
+  totalOutstanding: string
+  totalOverdue: string
+  recoveryRate: number | null
+  par30: number | null
+  defaultRate: number | null
 }
 
 const TIER_COLORS: Record<string, string> = {
@@ -52,6 +64,7 @@ interface OfficerRow {
 export default function PortfolioPage() {
   const [data, setData] = useState<Analytics | null>(null)
   const [officers, setOfficers] = useState<OfficerRow[]>([])
+  const [snapshots, setSnapshots] = useState<Snapshot[]>([])
   const [product, setProduct] = useState('')
   const [classification, setClassification] = useState('')
   const [tier, setTier] = useState('')
@@ -66,6 +79,11 @@ export default function PortfolioPage() {
         )
       )
       .catch(() => setOfficers([]))
+
+    fetch('/api/analytics/snapshot')
+      .then((r) => r.json())
+      .then((rows: Snapshot[]) => setSnapshots(rows))
+      .catch(() => setSnapshots([]))
   }, [])
 
   useEffect(() => {
@@ -113,6 +131,19 @@ export default function PortfolioPage() {
         .sort((a, b) => b.outstanding - a.outstanding)
         .slice(0, 10)
     : []
+
+  const branchData = data
+    ? Object.entries(data.branchBreakdown)
+        .map(([name, v]) => ({ name, outstanding: Number(v.outstanding), count: v.count }))
+        .sort((a, b) => b.outstanding - a.outstanding)
+    : []
+
+  const trendData = snapshots.map((s) => ({
+    date: new Date(s.capturedAt).toLocaleDateString('en-GB', { month: 'short', day: 'numeric' }),
+    outstanding: Number(s.totalOutstanding),
+    overdue: Number(s.totalOverdue),
+    recoveryRate: s.recoveryRate ?? 0,
+  }))
 
   return (
     <div>
@@ -202,6 +233,39 @@ export default function PortfolioPage() {
                 <Bar dataKey="outstanding" fill="#7c3aed" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
+          </ChartCard>
+
+          {branchData.length > 0 && (
+            <ChartCard title="Branch Performance (Outstanding)" full>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={branchData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" fontSize={11} angle={-30} textAnchor="end" height={70} />
+                  <YAxis tickFormatter={(v) => formatKESCompact(v)} fontSize={11} width={70} />
+                  <Tooltip formatter={(v) => formatKESCompact(Number(v))} />
+                  <Bar dataKey="outstanding" fill="#0891b2" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          )}
+
+          <ChartCard title="Recovery Trends (Daily Snapshots)" full>
+            {trendData.length === 0 ? (
+              <p className="text-sm text-gray-500">
+                No snapshots yet — captured daily, or trigger one manually after an import.
+              </p>
+            ) : (
+              <ResponsiveContainer width="100%" height={280}>
+                <LineChart data={trendData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" fontSize={11} />
+                  <YAxis tickFormatter={(v) => formatKESCompact(v)} fontSize={11} width={70} />
+                  <Tooltip formatter={(v) => formatKESCompact(Number(v))} />
+                  <Line type="monotone" dataKey="outstanding" stroke="#2563eb" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="overdue" stroke="#dc2626" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </ChartCard>
 
           <ChartCard title="Collector Performance Ranking" full>

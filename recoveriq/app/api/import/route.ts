@@ -36,6 +36,7 @@ const mappingSchema = z.object({
   daysInArrears: z.string(),
   classification: z.string(),
   countyCode: z.string().optional(),
+  branch: z.string().optional(),
 })
 
 const requestSchema = z.object({
@@ -167,6 +168,7 @@ export async function POST(req: NextRequest) {
         daysInArrears: row.daysInArrears,
         classification: row.classification,
         countyCode: row.countyCode,
+        branch: row.branch ?? null,
         arrearsBucket,
         recoveryTier,
         dormancyDays,

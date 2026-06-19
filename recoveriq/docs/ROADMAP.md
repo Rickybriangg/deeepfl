@@ -28,8 +28,8 @@ Interactive dashboard displaying:
 - [x] Default Rate
 - [x] Loan Aging Analysis *(Portfolio page "Arrears Aging" chart)*
 - [x] Collector Performance Ranking *(Portfolio page table)*
-- [ ] Branch Performance
-- [ ] Recovery Trends
+- [x] Branch Performance *(Loan.branch field + Portfolio chart; needs `branch` column mapped on import)*
+- [x] Recovery Trends *(`PortfolioSnapshot` model + daily Vercel cron + Portfolio line chart)*
 
 ### 1.2 Automated Due Monitoring
 System must automatically:

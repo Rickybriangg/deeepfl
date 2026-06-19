@@ -98,6 +98,7 @@ model Loan {
   // Normal | Watch | Substandard | Doubtful | Loss
   classification         String
   countyCode             Int?      // 1–47; Group Loan only
+  branch                 String?   // Branch / office name, if present in source data
 
   // Derived / cached fields (computed on import, stored for query performance)
   arrearsBucket     String?  // Current | 1-30 | 31-90 | 91-180 | 181-360 | 360+
@@ -114,9 +115,26 @@ model Loan {
   @@index([classification])
   @@index([recoveryTier])
   @@index([countyCode])
+  @@index([branch])
   @@index([arrearsBucket])
   @@index([isMatured])
   @@index([isCreditBalance])
+}
+
+// Daily point-in-time rollup of portfolio KPIs, captured by a scheduled job,
+// so trend charts have history to plot without re-deriving it from raw loans.
+model PortfolioSnapshot {
+  id               String   @id @default(cuid())
+  capturedAt       DateTime @default(now())
+  totalOutstanding String
+  totalOverdue     String
+  totalAccounts    Int
+  recoveryRate     Float?
+  nplRatio         Float?
+  par30            Float?
+  defaultRate      Float?
+
+  @@index([capturedAt])
 }
 
 model FinancialIntermediary {

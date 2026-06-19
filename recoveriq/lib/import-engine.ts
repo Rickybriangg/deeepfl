@@ -19,6 +19,7 @@ export interface ColumnMapping {
   daysInArrears: string
   classification: string
   countyCode?: string
+  branch?: string
 }
 
 export interface ParsedLoanRow {
@@ -37,6 +38,7 @@ export interface ParsedLoanRow {
   daysInArrears: number
   classification: string
   countyCode: number | null
+  branch?: string | null
 }
 
 export interface SheetParseResult {
@@ -150,6 +152,7 @@ export function parseSheet(
       daysInArrears: parseInt0(raw[mapping.daysInArrears]),
       classification: trimName(raw[mapping.classification]) || 'Normal',
       countyCode: mapping.countyCode ? parseIntOrNull(raw[mapping.countyCode]) : null,
+      branch: mapping.branch ? trimName(raw[mapping.branch]) || null : null,
     })
   }
 

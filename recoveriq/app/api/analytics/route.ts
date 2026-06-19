@@ -50,6 +50,7 @@ export async function GET(req: NextRequest) {
   const arrearsBreakdown: Record<string, { count: number; outstanding: Decimal }> = {}
   const delinquencyBreakdown: Record<string, { count: number; outstanding: Decimal }> = {}
   const countyBreakdown: Record<string, { count: number; outstanding: Decimal }> = {}
+  const branchBreakdown: Record<string, { count: number; outstanding: Decimal }> = {}
   let dormant365 = 0
   let creditBalances = 0
   let dueToday = 0
@@ -132,6 +133,13 @@ export async function GET(req: NextRequest) {
         countyBreakdown[countyName].outstanding.plus(outstanding)
     }
 
+    if (loan.branch) {
+      branchBreakdown[loan.branch] ??= { count: 0, outstanding: new Decimal(0) }
+      branchBreakdown[loan.branch].count++
+      branchBreakdown[loan.branch].outstanding =
+        branchBreakdown[loan.branch].outstanding.plus(outstanding)
+    }
+
     if ((loan.dormancyDays ?? 0) >= 365) dormant365++
     if (loan.isCreditBalance) creditBalances++
 
@@ -185,6 +193,7 @@ export async function GET(req: NextRequest) {
     arrearsBreakdown: toObj(arrearsBreakdown),
     delinquencyBreakdown: toObj(delinquencyBreakdown),
     countyBreakdown: toObj(countyBreakdown),
+    branchBreakdown: toObj(branchBreakdown),
     productBreakdown: Object.entries(productBreakdown).map(([product, v]) => ({
       product,
       count: v.count,

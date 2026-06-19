@@ -22,6 +22,7 @@ const OPTIONAL_FIELDS = [
   'lastPayDate',
   'loanTenor',
   'countyCode',
+  'branch',
 ] as const
 
 const PRODUCTS = [

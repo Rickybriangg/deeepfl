@@ -176,12 +176,17 @@ Track and maintain complete audit trails:
 
 ### 1.15 Notifications Center
 Real-time alerts for:
-- [ ] Loans due today
-- [ ] Overdue accounts
-- [ ] Missed promises to pay
-- [ ] High-risk customers
-- [ ] Collector inactivity
-- [ ] Escalation events
+- [x] Loans due today
+- [x] Overdue accounts
+- [x] Missed promises to pay
+- [x] High-risk customers *(Doubtful/Impaired recovery tier, proxy until 1.7 risk scoring exists)*
+- [x] Collector inactivity *(officers with assigned cases, no logged action in 7 days)*
+- [x] Escalation events *(auto-escalated PTP breaks, from AuditLog)*
+
+Implemented as `/api/notifications` + a new **Notifications** page (linked
+from the sidebar), polled on load rather than pushed (no WebSocket/SSE
+infra yet — still "live" in the sense every other page in this app is:
+force-dynamic reads, no caching).
 
 ---
 

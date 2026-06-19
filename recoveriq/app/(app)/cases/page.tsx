@@ -1,5 +1,6 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { formatKES } from '@/lib/format'
 
 interface Action {
@@ -31,7 +32,21 @@ const ACTION_TYPES = [
 ]
 
 export default function CasesPage() {
-  const [view, setView] = useState<'all' | 'mine' | 'dueToday' | 'brokenPTP'>('mine')
+  return (
+    <Suspense fallback={<p className="text-sm text-gray-500">Loading…</p>}>
+      <CasesPageInner />
+    </Suspense>
+  )
+}
+
+function CasesPageInner() {
+  const searchParams = useSearchParams()
+  const initialView = searchParams.get('view')
+  const [view, setView] = useState<'all' | 'mine' | 'dueToday' | 'brokenPTP'>(
+    initialView === 'brokenPTP' || initialView === 'dueToday' || initialView === 'all'
+      ? initialView
+      : 'mine'
+  )
   const [cases, setCases] = useState<Case[]>([])
   const [loading, setLoading] = useState(true)
   const [active, setActive] = useState<Case | null>(null)

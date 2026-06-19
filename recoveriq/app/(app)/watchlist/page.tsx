@@ -1,5 +1,6 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { formatKES } from '@/lib/format'
 
 interface Loan {
@@ -34,7 +35,16 @@ const WORKLISTS = [
 ]
 
 export default function WatchlistPage() {
-  const [worklist, setWorklist] = useState('')
+  return (
+    <Suspense fallback={<p className="text-sm text-gray-500">Loading…</p>}>
+      <WatchlistPageInner />
+    </Suspense>
+  )
+}
+
+function WatchlistPageInner() {
+  const searchParams = useSearchParams()
+  const [worklist, setWorklist] = useState(searchParams.get('worklist') ?? '')
   const [loans, setLoans] = useState<Loan[]>([])
   const [total, setTotal] = useState(0)
   const [selected, setSelected] = useState<Set<string>>(new Set())

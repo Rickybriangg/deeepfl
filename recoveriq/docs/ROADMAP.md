@@ -168,11 +168,11 @@ Administrators configure (without modifying code):
 
 ### 1.14 Audit & Compliance
 Track and maintain complete audit trails:
-- [ ] All customer communications
-- [ ] Recovery actions
-- [ ] System changes
-- [ ] Payment history
-- [ ] Escalation history
+- [ ] All customer communications *(blocked on 1.3 Reminder Engine — no channels exist to communicate through yet)*
+- [x] Recovery actions *(`RecoveryAction` log, browsable via Cases page)*
+- [x] System changes *(`AuditLog`: import, override, case status/assignment changes — new Admin-only **Audit Log** page)*
+- [x] Payment history *(`amountReceived` on RecoveryAction; "Payment received" action type)*
+- [x] Escalation history *(`AuditLog` PTP_AUTO_ESCALATED events, also on Audit Log page)*
 
 ### 1.15 Notifications Center
 Real-time alerts for:

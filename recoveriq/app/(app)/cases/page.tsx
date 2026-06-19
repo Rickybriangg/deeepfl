@@ -8,6 +8,7 @@ interface Action {
   type: string
   outcome: string | null
   notes: string | null
+  amountReceived?: string | null
   timestamp: string
 }
 
@@ -167,7 +168,23 @@ function CasesPageInner() {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setActive(null)}>
           <div className="bg-white dark:bg-gray-900 rounded-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
             <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{active.loanNo} — {active.loan.borrowerName}</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Recent history: {active.actions.map((a) => a.type).join(', ') || 'none'}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Recent history: {active.actions.map((a) => a.type).join(', ') || 'none'}</p>
+            {active.actions.some((a) => a.type === 'Payment received') && (
+              <div className="mb-4 space-y-1">
+                {active.actions
+                  .filter((a) => a.type === 'Payment received')
+                  .map((a) => (
+                    <a
+                      key={a.id}
+                      href={`/api/payments/${a.id}/receipt`}
+                      className="block text-xs text-blue-700 hover:underline"
+                    >
+                      ↓ Receipt — {new Date(a.timestamp).toLocaleDateString()}
+                      {a.amountReceived ? ` · ${a.amountReceived}` : ''}
+                    </a>
+                  ))}
+              </div>
+            )}
 
             <div className="space-y-3">
               <div>

@@ -159,10 +159,14 @@ Integrate with:
 - [ ] 🔑 Online Payment Gateway
 
 Automatically:
-- [ ] Reconcile payments
-- [ ] Update balances
-- [ ] Close installments
-- [ ] Generate receipts
+- [x] Reconcile payments *(logging a "Payment received" action reconciles against the loan: decrements outstanding, increments total paid, audit-logged as `PAYMENT_RECONCILED`)*
+- [x] Update balances *(same — `outstandingBalance`/`totalPaid` updated atomically with the payment)*
+- [~] Close installments *(no per-installment schedule model yet; when a balance clears the case auto-moves to `Recovered`)*
+- [x] Generate receipts *(`/api/payments/[id]/receipt` — PDF receipt per payment, downloadable from the case action history)*
+
+> The four items above are credential-free and work today for payments
+> captured manually or via import. The 🔑 provider integrations above feed
+> the same reconciliation path automatically once their credentials are saved.
 
 ### 1.12 Reports & Analytics
 Generate:

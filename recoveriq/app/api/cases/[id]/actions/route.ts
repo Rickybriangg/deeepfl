@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { z } from 'zod'
+import Decimal from 'decimal.js'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { computeArrearsBucket } from '@/lib/recovery-logic'
 
 const schema = z.object({
   type: z.enum([
@@ -43,6 +45,56 @@ export async function POST(
       notes: data.notes,
     },
   })
+
+  // Payment reconciliation (roadmap 1.11): a logged payment reduces the loan's
+  // outstanding balance and increases total paid. If the balance clears, the
+  // case is auto-marked Recovered. No external gateway involved — this records
+  // and reconciles payments captured manually or imported.
+  if (data.type === 'Payment received' && data.amountReceived) {
+    const recoveryCase = await prisma.recoveryCase.findUnique({ where: { id } })
+    if (recoveryCase) {
+      const loan = await prisma.loan.findUnique({ where: { loanNo: recoveryCase.loanNo } })
+      if (loan) {
+        try {
+          const paid = new Decimal(data.amountReceived)
+          if (paid.gt(0)) {
+            const prevOutstanding = new Decimal(loan.outstandingBalance)
+            const newOutstanding = Decimal.max(prevOutstanding.minus(paid), new Decimal(0))
+            const newTotalPaid = new Decimal(loan.totalPaid).plus(paid)
+            const cleared = newOutstanding.lte(0)
+
+            await prisma.loan.update({
+              where: { loanNo: loan.loanNo },
+              data: {
+                outstandingBalance: newOutstanding.toString(),
+                totalPaid: newTotalPaid.toString(),
+                ...(cleared
+                  ? { daysInArrears: 0, arrearsBucket: computeArrearsBucket(0) }
+                  : {}),
+              },
+            })
+
+            if (cleared && !['Recovered', 'Closed', 'Written-off'].includes(recoveryCase.status)) {
+              await prisma.recoveryCase.update({ where: { id }, data: { status: 'Recovered' } })
+            }
+
+            await prisma.auditLog.create({
+              data: {
+                actorId: officerId,
+                action: 'PAYMENT_RECONCILED',
+                entity: 'Loan',
+                entityId: loan.loanNo,
+                before: JSON.stringify({ outstandingBalance: prevOutstanding.toString() }),
+                after: JSON.stringify({ outstandingBalance: newOutstanding.toString(), paid: paid.toString() }),
+              },
+            })
+          }
+        } catch {
+          // malformed amount — skip reconciliation, the action is still logged
+        }
+      }
+    }
+  }
 
   if (data.newStatus || data.nextActionDate) {
     const before = await prisma.recoveryCase.findUnique({ where: { id } })

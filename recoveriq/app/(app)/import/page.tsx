@@ -41,6 +41,8 @@ type Mapping = Record<string, string>
 interface ImportResult {
   importBatchId: string
   rowCount: number
+  insertedCount: number
+  skippedDuplicates: number
   droppedRowCount: number
   dropReport: { sheet: string; dropped: number; reasons: string[] }[]
   reconciliation: {
@@ -279,7 +281,16 @@ export default function ImportPage() {
         <div className="space-y-6">
           {/* Summary */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <SummaryCard label="Rows imported" value={result.rowCount.toString()} />
+            <SummaryCard
+              label="New rows inserted"
+              value={(result.insertedCount ?? result.rowCount).toString()}
+              good={(result.insertedCount ?? result.rowCount) > 0}
+            />
+            <SummaryCard
+              label="Duplicates skipped"
+              value={(result.skippedDuplicates ?? 0).toString()}
+              warn={(result.skippedDuplicates ?? 0) > 0}
+            />
             <SummaryCard
               label="Rows dropped"
               value={result.droppedRowCount.toString()}

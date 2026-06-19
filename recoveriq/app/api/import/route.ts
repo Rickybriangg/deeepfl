@@ -14,6 +14,12 @@ import {
   type LoanClassification,
 } from '@/lib/recovery-logic'
 
+// Large loan-book imports (10k+ rows) run many sequential insert batches against
+// the database, which can exceed the default serverless function timeout.
+export const runtime = 'nodejs'
+export const maxDuration = 60
+export const dynamic = 'force-dynamic'
+
 const mappingSchema = z.object({
   loanNo: z.string(),
   memberNo: z.string().optional(),
@@ -171,14 +177,20 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Use createMany in chunks; loanNo is unique so duplicates across imports will fail —
-  // intentional, since each loanNo must be globally unique per the schema.
+  // Use createMany in chunks. loanNo is globally unique, so any loan already in the
+  // database (e.g. from a prior import, or a retry after a partial/timed-out run) is
+  // skipped rather than aborting the whole batch — this keeps imports idempotent and
+  // safely retryable. insertedCount reflects how many rows were actually new.
   const chunkSize = 500
+  let insertedCount = 0
   for (let i = 0; i < loanCreates.length; i += chunkSize) {
-    await prisma.loan.createMany({
+    const res = await prisma.loan.createMany({
       data: loanCreates.slice(i, i + chunkSize),
+      skipDuplicates: true,
     })
+    insertedCount += res.count
   }
+  const skippedDuplicates = loanCreates.length - insertedCount
 
   await prisma.auditLog.create({
     data: {
@@ -198,6 +210,8 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     importBatchId: importBatch.id,
     rowCount: totalRows,
+    insertedCount,
+    skippedDuplicates,
     droppedRowCount: totalDropped,
     dropReport,
     reconciliation,

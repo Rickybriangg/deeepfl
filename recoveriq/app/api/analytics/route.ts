@@ -38,6 +38,7 @@ export async function GET(req: NextRequest) {
   let nplOutstanding = new Decimal(0)
   let par30Outstanding = new Decimal(0)
   let positiveOutstanding = new Decimal(0)
+  let totalOverdue = new Decimal(0)
 
   const tierBreakdown: Record<string, { count: number; outstanding: Decimal }> = {}
   const classBreakdown: Record<string, { count: number; outstanding: Decimal }> = {}
@@ -75,6 +76,9 @@ export async function GET(req: NextRequest) {
       }
       if (loan.daysInArrears > 30) {
         par30Outstanding = par30Outstanding.plus(outstanding)
+      }
+      if (loan.daysInArrears > 0) {
+        totalOverdue = totalOverdue.plus(outstanding)
       }
     }
 
@@ -157,6 +161,7 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     totalOutstanding: totalOutstanding.toFixed(2),
+    totalOverdue: totalOverdue.toFixed(2),
     totalAccounts: loans.length,
     activeCases,
     recoveryRate,

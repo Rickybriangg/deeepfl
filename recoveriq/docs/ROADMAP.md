@@ -18,7 +18,7 @@
 Interactive dashboard displaying:
 - [x] Total Active Loans *(`Total Accounts` KPI)*
 - [x] Total Outstanding Balance
-- [ ] Total Overdue Amount
+- [x] Total Overdue Amount
 - [x] Portfolio at Risk (PAR) *(`PAR > 30` KPI)*
 - [x] Loans Due Today
 - [x] Loans Due This Week

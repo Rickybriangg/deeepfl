@@ -9,6 +9,7 @@ type Breakdown = Record<string, { count: number; outstanding: string }>
 
 interface Analytics {
   totalOutstanding: string
+  totalOverdue?: string
   totalAccounts: number
   activeCases: number
   recoveryRate: number | null
@@ -61,6 +62,12 @@ export default function DashboardPage() {
           value={data ? formatKESCompact(data.totalOutstanding) : '—'}
           subtitle="KES"
           accent="blue"
+        />
+        <KpiCard
+          title="Total Overdue"
+          value={data ? formatKESCompact(data.totalOverdue ?? '0') : '—'}
+          subtitle="KES"
+          accent="red"
         />
         <KpiCard
           title="Recovery Rate"

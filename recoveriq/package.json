@@ -4,13 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma migrate deploy && (npm run db:seed || echo 'seed skipped') && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy && (npm run db:seed || echo 'seed skipped')",
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio"
   },

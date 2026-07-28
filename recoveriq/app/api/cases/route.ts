@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 
 // Always read live data; never serve a cached (e.g. pre-import empty) response.
 export const dynamic = 'force-dynamic'
@@ -15,7 +16,7 @@ export async function GET(req: NextRequest) {
   const view = searchParams.get('view') // 'mine' | 'dueToday' | 'brokenPTP'
   const userId = (session.user as { id: string }).id
 
-  const where: Record<string, unknown> = {}
+  const where: Prisma.RecoveryCaseWhereInput = {}
   if (view === 'mine') where.assignedOfficerId = userId
   if (view === 'dueToday') {
     const today = new Date()

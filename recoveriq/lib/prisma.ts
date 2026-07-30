@@ -19,11 +19,6 @@ function createClient(): PrismaClient {
     keepAliveInitialDelayMillis: 5_000,
     idleTimeoutMillis: 30_000,
     connectionTimeoutMillis: 15_000,
-    // Managed Postgres (Railway/Neon/etc.) typically requires TLS and presents
-    // a certificate the Node CA bundle doesn't recognize. Without this, the
-    // server closes the connection immediately (P1017). rejectUnauthorized is
-    // relaxed because the proxy cert isn't in the default trust store.
-    ssl: { rejectUnauthorized: false },
   })
   return new PrismaClient({
     adapter,

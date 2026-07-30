@@ -2,10 +2,12 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { KpiCard } from '@/components/KpiCard'
+import { RecoveryVisuals } from '@/components/RecoveryVisuals'
 import { formatKES, formatKESCompact, formatPercent, formatNumber } from '@/lib/format'
 import { DELINQUENCY_STAGES } from '@/lib/recovery-logic'
 
 type Breakdown = Record<string, { count: number; outstanding: string }>
+type Product = { product: string; count: number; outstanding: string; recoveryRate: number | null }
 
 interface Analytics {
   totalOutstanding: string
@@ -17,6 +19,7 @@ interface Analytics {
   par30: number | null
   defaultRate?: number | null
   delinquencyBreakdown?: Breakdown
+  productBreakdown?: Product[]
   dueToday?: number
   dueThisWeek?: number
   dueThisMonth?: number
@@ -141,6 +144,17 @@ export default function DashboardPage() {
         </div>
       ) : (
         <div className="space-y-6">
+          <RecoveryVisuals
+            delinquencyBreakdown={data!.delinquencyBreakdown}
+            productBreakdown={data!.productBreakdown}
+            recoveryRate={data!.recoveryRate}
+            dueToday={data!.dueToday}
+            dueThisWeek={data!.dueThisWeek}
+            dueThisMonth={data!.dueThisMonth}
+            totalOverdue={data!.totalOverdue}
+            totalOutstanding={data!.totalOutstanding}
+          />
+
           <DelinquencySection breakdown={data!.delinquencyBreakdown} />
 
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-6">

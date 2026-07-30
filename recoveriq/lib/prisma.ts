@@ -4,9 +4,22 @@ import { PrismaClient } from '@prisma/client'
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient }
 
+function sanitize(url: string): string {
+  // node-postgres does not understand channel_binding; strip it so it doesn't
+  // interfere with the connection. sslmode is honored and left intact.
+  try {
+    const u = new URL(url)
+    u.searchParams.delete('channel_binding')
+    return u.toString()
+  } catch {
+    return url
+  }
+}
+
 function createClient(): PrismaClient {
-  const connectionString = process.env.DATABASE_URL
-  if (!connectionString) throw new Error('DATABASE_URL is not set')
+  const raw = process.env.DATABASE_URL
+  if (!raw) throw new Error('DATABASE_URL is not set')
+  const connectionString = sanitize(raw)
   // Serverless functions keep a warm pooled connection between invocations.
   // Railway's public proxy silently drops idle TCP connections, so a reused
   // connection fails the next query with P1017 "Server has closed the

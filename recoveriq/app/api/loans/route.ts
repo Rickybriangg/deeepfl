@@ -13,10 +13,23 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url)
   const worklist = searchParams.get('worklist')
+  const product = searchParams.get('product')
+  const county = searchParams.get('county')
+  const search = searchParams.get('search')?.trim()
   const page = parseInt(searchParams.get('page') ?? '1', 10)
   const pageSize = parseInt(searchParams.get('pageSize') ?? '50', 10)
 
   const where: Record<string, unknown> = {}
+
+  if (product) where.product = product
+  if (county) where.countyCode = parseInt(county, 10)
+  if (search) {
+    where.OR = [
+      { loanNo: { contains: search, mode: 'insensitive' } },
+      { borrowerName: { contains: search, mode: 'insensitive' } },
+      { memberNo: { contains: search, mode: 'insensitive' } },
+    ]
+  }
 
   switch (worklist) {
     case 'doubtful':

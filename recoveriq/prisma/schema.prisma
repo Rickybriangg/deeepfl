@@ -117,6 +117,7 @@ model Loan {
 
   importBatch  ImportBatch   @relation(fields: [importBatchId], references: [id])
   recoveryCase RecoveryCase?
+  insurance    LoanInsurance[]
 
   @@index([product])
   @@index([classification])
@@ -336,6 +337,59 @@ model IntegrationSetting {
   lastVerifiedAt DateTime?
   updatedById    String?
   updatedAt      DateTime  @updatedAt
+}
+
+// Reusable insurance product definition (e.g. "Credit Life", "Portfolio
+// Cover"). Managers configure these once; individual loans are then insured
+// against a template, which snapshots its rates onto the resulting policy so
+// later template edits never rewrite issued cover. Monetary/rate values are
+// stored as strings to preserve decimal precision — never floats.
+model InsuranceTemplate {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  provider        String?  // Underwriter / insurer name
+  // credit-life | asset | portfolio | credit-guarantee | other
+  coverageType    String
+  // outstanding | disbursed | approved — the loan amount the cover applies to
+  coverageBasis   String   @default("outstanding")
+  coveragePercent String   // percent of the basis that is covered (0–100)
+  premiumRate     String   // premium as a percent of the insured amount (0–100)
+  termMonths      Int?
+  description     String?
+  enabled         Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  policies LoanInsurance[]
+}
+
+// A concrete policy binding one loan to an InsuranceTemplate. Rates are
+// snapshotted at issue time. A loan may hold several policies over its life
+// (renewals / multiple covers).
+model LoanInsurance {
+  id              String    @id @default(cuid())
+  loanNo          String
+  templateId      String
+  policyNo        String    @unique
+  status          String    @default("active") // active | lapsed | claimed | cancelled
+  coverageBasis   String
+  coveragePercent String
+  premiumRate     String
+  insuredAmount   String
+  premiumAmount   String
+  startDate       DateTime  @default(now())
+  endDate         DateTime?
+  notes           String?
+  createdById     String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  loan     Loan              @relation(fields: [loanNo], references: [loanNo])
+  template InsuranceTemplate @relation(fields: [templateId], references: [id])
+
+  @@index([loanNo])
+  @@index([templateId])
+  @@index([status])
 }
 
 model AuditLog {

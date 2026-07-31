@@ -392,6 +392,26 @@ model LoanInsurance {
   @@index([status])
 }
 
+// Per-financial-year disbursement/repayment rollup ("vintage"). Loaded from the
+// FY summary report so the app can show how each disbursement cohort has
+// recovered over time, independent of the current loan-book snapshot. Monetary
+// values are strings to preserve decimal precision; recoveryRate is a percent.
+model FiscalYearVintage {
+  id                 String   @id @default(cuid())
+  fiscalYear         String   @unique // e.g. "FY 2013/2014"
+  sortKey            Int      // start year, for ordering (e.g. 2013)
+  approvedAmount     String
+  outstandingBalance String
+  amountDue          String
+  amountRecovered    String
+  recoveryRate       Float?   // percent (amountRecovered / amountDue × 100)
+  loansIssued        Int
+  isAggregate        Boolean  @default(false) // true for combined multi-year rows
+  updatedAt          DateTime @updatedAt
+
+  @@index([sortKey])
+}
+
 model AuditLog {
   id        String   @id @default(cuid())
   actorId   String

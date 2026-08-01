@@ -143,4 +143,12 @@ export const INTEGRATIONS: IntegrationDef[] = [
       { key: 'environment', label: 'Environment' },
     ],
   },
+  {
+    key: 'anthropic',
+    label: 'Anthropic (AI drafting)',
+    fields: [
+      { key: 'apiKey', label: 'API key' },
+      { key: 'model', label: 'Model (optional, default claude-opus-5)' },
+    ],
+  },
 ]
